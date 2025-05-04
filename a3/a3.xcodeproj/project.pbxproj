@@ -31,12 +31,10 @@
 		BFA9B1A32DC7750500501776 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = BFA9B1A22DC7750500501776 /* FirebaseStorage */; };
 		BFA9B1A52DC7750500501776 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = BFA9B1A42DC7750500501776 /* FirebaseStorageCombine-Community */; };
 		BFA9B1A72DC7750500501776 /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = BFA9B1A62DC7750500501776 /* FirebaseVertexAI */; };
-		BFA9B1A92DC7755800501776 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BFA9B1A82DC7755800501776 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		BFA9B15F2DC7747500501776 /* a3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = a3.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		BFA9B1A82DC7755800501776 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -98,7 +96,6 @@
 		BFA9B1562DC7747500501776 = {
 			isa = PBXGroup;
 			children = (
-				BFA9B1A82DC7755800501776 /* GoogleService-Info.plist */,
 				BFA9B1612DC7747500501776 /* a3 */,
 				BFA9B1602DC7747500501776 /* Products */,
 			);
@@ -203,7 +200,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFA9B1A92DC7755800501776 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
