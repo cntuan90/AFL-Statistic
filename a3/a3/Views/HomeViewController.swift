@@ -43,6 +43,13 @@ class HomeViewController: UIViewController {
             }
     }
     
+    @IBAction func addMatchButtonTapped(_ sender: UIBarButtonItem) {
+        let addMatchVC = AddMatchViewController()
+        addMatchVC.modalPresentationStyle = .fullScreen
+        present(addMatchVC, animated: true)
+    }
+    
+    
     @IBAction func shareButtonTapped(_ sender: UIBarButtonItem) {
         guard let match = matches.first else { return }
         let csvData = generateCSVData(for: match)
@@ -84,6 +91,5 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let match = matches[indexPath.row]
-        
     }
-} 
+}

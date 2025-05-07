@@ -22,7 +22,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-627" y="130"/>
+            <point key="canvasLocation" x="-137.68115942028987" y="-129.91071428571428"/>
         </scene>
         <!--Matches-->
         <scene sceneID="tne-QT-ifu">
@@ -82,7 +82,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzs" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="137.68115942028987" y="129.91071428571428"/>
+            <point key="canvasLocation" x="685" y="-130"/>
         </scene>
     </scenes>
     <resources>
