@@ -1,0 +1,256 @@
+import UIKit
+import FirebaseFirestore
+
+class TeamManagementViewController: UIViewController {
+    @IBOutlet weak var homeTeamLabel: UILabel!
+    @IBOutlet weak var awayTeamLabel: UILabel!
+    @IBOutlet weak var homeTeamTableView: UITableView!
+    @IBOutlet weak var awayTeamTableView: UITableView!
+    @IBOutlet weak var homeTeamSearchBar: UISearchBar!
+    @IBOutlet weak var awayTeamSearchBar: UISearchBar!
+    @IBOutlet weak var addPlayerButton: UIButton!
+    
+    private var homeTeamPlayers: [Player] = []
+    private var awayTeamPlayers: [Player] = []
+    private var filteredHomePlayers: [Player] = []
+    private var filteredAwayPlayers: [Player] = []
+    private var match: Match?
+    private let db = Firestore.firestore()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupTableView()
+        setupSearchBars()
+        loadMatchData()
+    }
+    
+    private func setupUI() {
+        title = "Team Management"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        addPlayerButton.addTarget(self, action: #selector(addPlayerButtonTapped), for: .touchUpInside)
+    }
+    
+    private func setupTableView() {
+        homeTeamTableView.delegate = self
+        homeTeamTableView.dataSource = self
+        awayTeamTableView.delegate = self
+        awayTeamTableView.dataSource = self
+        
+        homeTeamTableView.register(UITableViewCell.self, forCellReuseIdentifier: "PlayerCell")
+        awayTeamTableView.register(UITableViewCell.self, forCellReuseIdentifier: "PlayerCell")
+    }
+    
+    private func setupSearchBars() {
+        homeTeamSearchBar.delegate = self
+        awayTeamSearchBar.delegate = self
+    }
+    
+    private func loadMatchData() {
+        // Load match data from Firestore
+        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
+            if let error = error {
+                print("Error loading match data: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents,
+                  let firstDocument = documents.first,
+                  let match = Match(document: firstDocument) else {
+                return
+            }
+            
+            self?.match = match
+            self?.homeTeamLabel.text = match.home.name
+            self?.awayTeamLabel.text = match.away.name
+            self?.homeTeamPlayers = match.home.players
+            self?.awayTeamPlayers = match.away.players
+            self?.filteredHomePlayers = match.home.players
+            self?.filteredAwayPlayers = match.away.players
+            
+            DispatchQueue.main.async {
+                self?.homeTeamTableView.reloadData()
+                self?.awayTeamTableView.reloadData()
+            }
+        }
+    }
+    
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func addPlayerButtonTapped() {
+        let alertController = UIAlertController(title: "Select Team", message: "Choose which team to add the player to", preferredStyle: .actionSheet)
+        
+        let homeTeamAction = UIAlertAction(title: match?.home.name ?? "Home Team", style: .default) { [weak self] _ in
+            self?.showAddPlayerAlert(isHomeTeam: true)
+        }
+        
+        let awayTeamAction = UIAlertAction(title: match?.away.name ?? "Away Team", style: .default) { [weak self] _ in
+            self?.showAddPlayerAlert(isHomeTeam: false)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alertController.addAction(homeTeamAction)
+        alertController.addAction(awayTeamAction)
+        alertController.addAction(cancelAction)
+        
+        // For iPad support
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = addPlayerButton
+            popoverController.sourceRect = addPlayerButton.bounds
+        }
+        
+        present(alertController, animated: true)
+    }
+    
+    private func showAddPlayerAlert(isHomeTeam: Bool) {
+        let alertController = UIAlertController(title: "Add Player", message: nil, preferredStyle: .alert)
+        
+        alertController.addTextField { textField in
+            textField.placeholder = "Player Name"
+        }
+        
+        alertController.addTextField { textField in
+            textField.placeholder = "Position Number"
+            textField.keyboardType = .numberPad
+        }
+        
+        let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+            guard let name = alertController.textFields?[0].text,
+                  let positionText = alertController.textFields?[1].text,
+                  let position = Int(positionText),
+                  let match = self?.match else {
+                return
+            }
+            
+            let newPlayer = Player(playerName: name, positionNumber: position)
+            
+            // Add to Firestore
+            self?.db.collection("matches").document(match.id!).updateData([
+                isHomeTeam ? "home.players" : "away.players": FieldValue.arrayUnion([newPlayer.dictionary])
+            ]) { error in
+                if let error = error {
+                    print("Error adding player: \(error)")
+                    return
+                }
+                
+                // Update local data
+                if isHomeTeam {
+                    self?.homeTeamPlayers.append(newPlayer)
+                    self?.filteredHomePlayers.append(newPlayer)
+                    DispatchQueue.main.async {
+                        self?.homeTeamTableView.reloadData()
+                    }
+                } else {
+                    self?.awayTeamPlayers.append(newPlayer)
+                    self?.filteredAwayPlayers.append(newPlayer)
+                    DispatchQueue.main.async {
+                        self?.awayTeamTableView.reloadData()
+                    }
+                }
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alertController.addAction(addAction)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true)
+    }
+}
+
+extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if tableView == homeTeamTableView {
+            return filteredHomePlayers.count
+        } else {
+            return filteredAwayPlayers.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PlayerCell", for: indexPath)
+        let player: Player
+        
+        if tableView == homeTeamTableView {
+            player = filteredHomePlayers[indexPath.row]
+        } else {
+            player = filteredAwayPlayers[indexPath.row]
+        }
+        
+        var content = cell.defaultContentConfiguration()
+        content.text = "\(player.playerName) (\(player.positionNumber))"
+        cell.contentConfiguration = content
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let player: Player
+            let isHomeTeam = tableView == homeTeamTableView
+            
+            if isHomeTeam {
+                player = filteredHomePlayers[indexPath.row]
+            } else {
+                player = filteredAwayPlayers[indexPath.row]
+            }
+            
+            // Show confirmation alert
+            let alertController = UIAlertController(title: "Delete Player", message: "Are you sure you want to delete \(player.playerName)?", preferredStyle: .alert)
+            
+            let deleteAction = UIAlertAction(title: "Yes", style: .destructive) { [weak self] _ in
+                guard let match = self?.match else { return }
+                
+                // Remove from Firestore
+                self?.db.collection("matches").document(match.id!).updateData([
+                    isHomeTeam ? "home.players" : "away.players": FieldValue.arrayRemove([player.dictionary])
+                ]) { error in
+                    if let error = error {
+                        print("Error deleting player: \(error)")
+                        return
+                    }
+                    
+                    // Update local data
+                    if isHomeTeam {
+                        self?.homeTeamPlayers.removeAll { $0.playerName == player.playerName }
+                        self?.filteredHomePlayers.removeAll { $0.playerName == player.playerName }
+                    } else {
+                        self?.awayTeamPlayers.removeAll { $0.playerName == player.playerName }
+                        self?.filteredAwayPlayers.removeAll { $0.playerName == player.playerName }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        tableView.deleteRows(at: [indexPath], with: .fade)
+                    }
+                }
+            }
+            
+            let cancelAction = UIAlertAction(title: "No", style: .cancel)
+            
+            alertController.addAction(deleteAction)
+            alertController.addAction(cancelAction)
+            
+            present(alertController, animated: true)
+        }
+    }
+}
+
+extension TeamManagementViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar == homeTeamSearchBar {
+            filteredHomePlayers = searchText.isEmpty ? homeTeamPlayers : homeTeamPlayers.filter { $0.playerName.lowercased().contains(searchText.lowercased()) }
+            homeTeamTableView.reloadData()
+        } else {
+            filteredAwayPlayers = searchText.isEmpty ? awayTeamPlayers : awayTeamPlayers.filter { $0.playerName.lowercased().contains(searchText.lowercased()) }
+            awayTeamTableView.reloadData()
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+}

@@ -18,14 +18,6 @@ struct Match: Codable {
         var actions: [Action]
     }
     
-    struct Player: Codable {
-        let id: String?
-        let playerName: String
-        let positionNumber: Int
-        let image: String
-        var injuryStatus: Bool
-    }
-    
     struct Action: Codable {
         let action: String
         let actionTeam: String
@@ -60,32 +52,12 @@ extension Match {
             return nil
         }
         
-        let homePlayers = (homeData["players"] as? [[String: Any]] ?? []).compactMap { playerData -> Player? in
-            guard let playerName = playerData["playerName"] as? String,
-                  let positionNumber = playerData["positionNumber"] as? Int,
-                  let image = playerData["image"] as? String,
-                  let injuryStatus = playerData["injuryStatus"] as? Bool else {
-                return nil
-            }
-            return Player(id: playerData["id"] as? String,
-                         playerName: playerName,
-                         positionNumber: positionNumber,
-                         image: image,
-                         injuryStatus: injuryStatus)
+        let homePlayers = (homeData["players"] as? [[String: Any]] ?? []).compactMap { playerData in
+            Player.from(dictionary: playerData)
         }
         
-        let awayPlayers = (awayData["players"] as? [[String: Any]] ?? []).compactMap { playerData -> Player? in
-            guard let playerName = playerData["playerName"] as? String,
-                  let positionNumber = playerData["positionNumber"] as? Int,
-                  let image = playerData["image"] as? String,
-                  let injuryStatus = playerData["injuryStatus"] as? Bool else {
-                return nil
-            }
-            return Player(id: playerData["id"] as? String,
-                         playerName: playerName,
-                         positionNumber: positionNumber,
-                         image: image,
-                         injuryStatus: injuryStatus)
+        let awayPlayers = (awayData["players"] as? [[String: Any]] ?? []).compactMap { playerData in
+            Player.from(dictionary: playerData)
         }
         
         let homeActions = (homeData["actions"] as? [[String: Any]] ?? []).compactMap { actionData -> Action? in
