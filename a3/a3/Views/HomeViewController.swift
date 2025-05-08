@@ -5,7 +5,6 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addMatchButton: UIBarButtonItem!
     @IBOutlet weak var historyButton: UIBarButtonItem!
-    @IBOutlet weak var shareButton: UIBarButtonItem!
     
     private var matches: [Match] = []
     private let db = Firestore.firestore()
@@ -15,6 +14,44 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         setupTableView()
         setupFirestoreListener()
+        setupBurgerMenu()
+    }
+    
+    private func setupBurgerMenu() {
+        let menuButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal"), style: .plain, target: self, action: #selector(showMenu))
+        navigationItem.leftBarButtonItem = menuButton
+    }
+    
+    @objc private func showMenu() {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+//        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
+//            // Handle Team Management action
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            if let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as? TeamManagementViewController {
+//                self?.navigationController?.pushViewController(teamManagementVC, animated: true)
+//            }
+//        }
+//        
+//        let historyAction = UIAlertAction(title: "History", style: .default) { [weak self] _ in
+//            // Handle History action
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let historyVC = storyboard.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
+//            self?.navigationController?.pushViewController(historyVC, animated: true)
+//        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+//        alertController.addAction(teamManagementAction)
+//        alertController.addAction(historyAction)
+        alertController.addAction(cancelAction)
+        
+        // For iPad support
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.barButtonItem = navigationItem.leftBarButtonItem
+        }
+        
+        present(alertController, animated: true)
     }
     
     private func setupTableView() {
@@ -48,25 +85,6 @@ class HomeViewController: UIViewController {
         addMatchVC.modalPresentationStyle = .fullScreen
         present(addMatchVC, animated: true)
     }
-    
-    
-    @IBAction func shareButtonTapped(_ sender: UIBarButtonItem) {
-        guard let match = matches.first else { return }
-        let csvData = generateCSVData(for: match)
-        let activityVC = UIActivityViewController(activityItems: [csvData], applicationActivities: nil)
-        present(activityVC, animated: true)
-    }
-    
-    private func generateCSVData(for match: Match) -> String {
-        var csvBuilder = "Action,Action Team,Time,Player Name,Position Number,Action Quarter\n"
-        match.home.actions.forEach { action in
-            csvBuilder += "\(action.action),\(action.actionTeam),\(action.time),\(action.playerName),\(action.positionNumber),\(action.actionQuarter)\n"
-        }
-        match.away.actions.forEach { action in
-            csvBuilder += "\(action.action),\(action.actionTeam),\(action.time),\(action.playerName),\(action.positionNumber),\(action.actionQuarter)\n"
-        }
-        return csvBuilder
-    }
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
@@ -91,5 +109,17 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let match = matches[indexPath.row]
+        
+//        if match.status == "New" {
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let editTeamVC = storyboard.instantiateViewController(withIdentifier: "EditTeamViewController") as! EditTeamViewController
+//            editTeamVC.match = match
+//            navigationController?.pushViewController(editTeamVC, animated: true)
+//        } else {
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let recordActionVC = storyboard.instantiateViewController(withIdentifier: "RecordActionViewController") as! RecordActionViewController
+//            recordActionVC.match = match
+//            navigationController?.pushViewController(recordActionVC, animated: true)
+//        }
     }
 }

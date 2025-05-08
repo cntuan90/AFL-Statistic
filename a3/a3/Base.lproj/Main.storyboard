@@ -57,16 +57,6 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Matches" id="7gQ-2V-L3s">
-                        <barButtonItem key="backBarButtonItem" title=" " id="historyButton">
-                            <connections>
-                                <action selector="historyButtonTapped:" destination="BYZ-38-t0r" id="historyButtonTapped"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="leftBarButtonItem" systemItem="action" id="shareButton">
-                            <connections>
-                                <action selector="shareButtonTapped:" destination="BYZ-38-t0r" id="shareButtonTapped"/>
-                            </connections>
-                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="addMatchButton">
                             <connections>
                                 <action selector="addMatchButtonTapped:" destination="BYZ-38-t0r" id="addMatchButtonTapped"/>
@@ -75,8 +65,6 @@
                     </navigationItem>
                     <connections>
                         <outlet property="addMatchButton" destination="addMatchButton" id="addMatchButtonOutlet"/>
-                        <outlet property="historyButton" destination="historyButton" id="historyButtonOutlet"/>
-                        <outlet property="shareButton" destination="shareButton" id="shareButtonOutlet"/>
                         <outlet property="tableView" destination="YRO-k0-Ey4" id="tableViewOutlet"/>
                     </connections>
                 </viewController>
