@@ -25,25 +25,25 @@ class HomeViewController: UIViewController {
     @objc private func showMenu() {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-//        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
-//            // Handle Team Management action
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
+            // Handle Team Management action
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
 //            if let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as? TeamManagementViewController {
 //                self?.navigationController?.pushViewController(teamManagementVC, animated: true)
 //            }
-//        }
-//        
-//        let historyAction = UIAlertAction(title: "History", style: .default) { [weak self] _ in
-//            // Handle History action
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        }
+        
+        let historyAction = UIAlertAction(title: "History", style: .default) { [weak self] _ in
+            // Handle History action
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
 //            let historyVC = storyboard.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
 //            self?.navigationController?.pushViewController(historyVC, animated: true)
-//        }
+        }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
-//        alertController.addAction(teamManagementAction)
-//        alertController.addAction(historyAction)
+        alertController.addAction(teamManagementAction)
+        alertController.addAction(historyAction)
         alertController.addAction(cancelAction)
         
         // For iPad support
