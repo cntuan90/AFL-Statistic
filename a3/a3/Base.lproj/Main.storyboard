@@ -78,6 +78,117 @@
             </objects>
             <point key="canvasLocation" x="685" y="-130"/>
         </scene>
+        <!--Team Management-->
+        <scene sceneID="team-management-scene">
+            <objects>
+                <viewController id="team-management-vc" customClass="TeamManagementViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController" storyboardIdentifier="TeamManagementViewController">
+                    <view key="view" contentMode="scaleToFill" id="team-management-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Home Team" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-label">
+                                <rect key="frame" x="16" y="76" width="361" height="21"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <searchBar contentMode="redraw" placeholder="Search players..." translatesAutoresizingMaskIntoConstraints="NO" id="home-team-search">
+                                <rect key="frame" x="16" y="101" width="361" height="36"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-table">
+                                <rect key="frame" x="16" y="141" width="361" height="200"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="home-player-cell">
+                                        <rect key="frame" x="0.0" y="28" width="361" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="home-player-cell" id="home-player-content">
+                                            <rect key="frame" x="0.0" y="0.0" width="361" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Away Team" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-label">
+                                <rect key="frame" x="16" y="357" width="361" height="21"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <searchBar contentMode="redraw" placeholder="Search players..." translatesAutoresizingMaskIntoConstraints="NO" id="away-team-search">
+                                <rect key="frame" x="16" y="382" width="361" height="36"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-table">
+                                <rect key="frame" x="16" y="422" width="361" height="200"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="away-player-cell">
+                                        <rect key="frame" x="0.0" y="28" width="361" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="away-player-cell" id="away-player-content">
+                                            <rect key="frame" x="0.0" y="0.0" width="361" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="add-player-button">
+                                <rect key="frame" x="16" y="16" width="361" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="button-height"/>
+                                </constraints>
+                                <state key="normal" title="Add Player"/>
+                                <connections>
+                                    <action selector="addPlayerButtonTapped:" destination="team-management-vc" eventType="touchUpInside" id="add-player-action"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="team-management-safe-area"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="add-player-button" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="button-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="add-player-button" secondAttribute="trailing" constant="16" id="button-trailing"/>
+                            <constraint firstItem="add-player-button" firstAttribute="top" secondItem="team-management-safe-area" secondAttribute="top" constant="16" id="button-top"/>
+                            <constraint firstItem="home-team-label" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-label-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-label" secondAttribute="trailing" constant="16" id="home-label-trailing"/>
+                            <constraint firstItem="home-team-label" firstAttribute="top" secondItem="add-player-button" secondAttribute="bottom" constant="16" id="home-label-top"/>
+                            <constraint firstItem="home-team-search" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-search-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-search" secondAttribute="trailing" constant="16" id="home-search-trailing"/>
+                            <constraint firstItem="home-team-search" firstAttribute="top" secondItem="home-team-label" secondAttribute="bottom" constant="4" id="home-search-top"/>
+                            <constraint firstItem="home-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-table-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-table" secondAttribute="trailing" constant="16" id="home-table-trailing"/>
+                            <constraint firstItem="home-team-table" firstAttribute="top" secondItem="home-team-search" secondAttribute="bottom" constant="4" id="home-table-top"/>
+                            <constraint firstItem="home-team-table" firstAttribute="height" constant="200" id="home-table-height"/>
+                            <constraint firstItem="away-team-label" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="away-label-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-label" secondAttribute="trailing" constant="16" id="away-label-trailing"/>
+                            <constraint firstItem="away-team-label" firstAttribute="top" secondItem="home-team-table" secondAttribute="bottom" constant="16" id="away-label-top"/>
+                            <constraint firstItem="away-team-search" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="away-search-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-search" secondAttribute="trailing" constant="16" id="away-search-trailing"/>
+                            <constraint firstItem="away-team-search" firstAttribute="top" secondItem="away-team-label" secondAttribute="bottom" constant="4" id="away-search-top"/>
+                            <constraint firstItem="away-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="away-table-leading"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-table" secondAttribute="trailing" constant="16" id="away-table-trailing"/>
+                            <constraint firstItem="away-team-table" firstAttribute="top" secondItem="away-team-search" secondAttribute="bottom" constant="4" id="away-table-top"/>
+                            <constraint firstItem="away-team-table" firstAttribute="height" constant="200" id="away-table-height"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="team-management-nav-item"/>
+                    <connections>
+                        <outlet property="addPlayerButton" destination="add-player-button" id="add-player-outlet"/>
+                        <outlet property="homeTeamLabel" destination="home-team-label" id="home-label-outlet"/>
+                        <outlet property="homeTeamSearchBar" destination="home-team-search" id="home-search-outlet"/>
+                        <outlet property="homeTeamTableView" destination="home-team-table" id="home-table-outlet"/>
+                        <outlet property="awayTeamLabel" destination="away-team-label" id="away-label-outlet"/>
+                        <outlet property="awayTeamSearchBar" destination="away-team-search" id="away-search-outlet"/>
+                        <outlet property="awayTeamTableView" destination="away-team-table" id="away-table-outlet"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="team-management-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1375" y="-130"/>
+        </scene>
     </scenes>
     <resources>
         <systemColor name="systemBackgroundColor">
