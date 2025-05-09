@@ -134,27 +134,13 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="add-player-button">
-                                <rect key="frame" x="16" y="16" width="361" height="44"/>
-                                <color key="backgroundColor" systemColor="systemBlueColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="button-height"/>
-                                </constraints>
-                                <state key="normal" title="Add Player"/>
-                                <connections>
-                                    <action selector="addPlayerButtonTapped:" destination="team-management-vc" eventType="touchUpInside" id="add-player-action"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="team-management-safe-area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="add-player-button" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="button-leading"/>
-                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="add-player-button" secondAttribute="trailing" constant="16" id="button-trailing"/>
-                            <constraint firstItem="add-player-button" firstAttribute="top" secondItem="team-management-safe-area" secondAttribute="top" constant="16" id="button-top"/>
                             <constraint firstItem="home-team-label" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-label-leading"/>
                             <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-label" secondAttribute="trailing" constant="16" id="home-label-trailing"/>
-                            <constraint firstItem="home-team-label" firstAttribute="top" secondItem="add-player-button" secondAttribute="bottom" constant="16" id="home-label-top"/>
+                            <constraint firstItem="home-team-label" firstAttribute="top" secondItem="team-management-safe-area" secondAttribute="top" constant="16" id="home-label-top"/>
                             <constraint firstItem="home-team-search" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-search-leading"/>
                             <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-search" secondAttribute="trailing" constant="16" id="home-search-trailing"/>
                             <constraint firstItem="home-team-search" firstAttribute="top" secondItem="home-team-label" secondAttribute="bottom" constant="4" id="home-search-top"/>
@@ -174,7 +160,13 @@
                             <constraint firstItem="away-team-table" firstAttribute="height" constant="200" id="away-table-height"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="team-management-nav-item"/>
+                    <navigationItem key="navigationItem" title="Team Management" id="team-management-nav-item">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="add-player-button">
+                            <connections>
+                                <action selector="addPlayerButtonTapped:" destination="team-management-vc" id="add-player-action"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="addPlayerButton" destination="add-player-button" id="add-player-outlet"/>
                         <outlet property="homeTeamLabel" destination="home-team-label" id="home-label-outlet"/>
@@ -188,6 +180,104 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="team-management-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1375" y="-130"/>
+        </scene>
+        <!--Edit Player-->
+        <scene sceneID="edit-player-scene">
+            <objects>
+                <viewController id="edit-player-vc" customClass="EditPlayerViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController" storyboardIdentifier="EditPlayerViewController">
+                    <view key="view" contentMode="scaleToFill" id="edit-player-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ADD PLAYER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="title-label">
+                                <rect key="frame" x="16" y="76" width="361" height="21"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="player-image">
+                                <rect key="frame" x="146.66666666666666" y="113" width="100" height="100"/>
+                                <color key="backgroundColor" systemColor="systemGray5Color"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="image-width"/>
+                                    <constraint firstAttribute="height" constant="100" id="image-height"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="camera-button">
+                                <rect key="frame" x="146.66666666666666" y="229" width="100" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="camera-width"/>
+                                    <constraint firstAttribute="height" constant="44" id="camera-height"/>
+                                </constraints>
+                                <state key="normal" title="Camera"/>
+                            </button>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="player-name">
+                                <rect key="frame" x="16" y="289" width="361" height="34"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="position-number">
+                                <rect key="frame" x="16" y="339" width="361" height="34"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                            </textField>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="team-segment">
+                                <rect key="frame" x="16" y="389" width="361" height="32"/>
+                                <segments>
+                                    <segment title="Home"/>
+                                    <segment title="Away"/>
+                                </segments>
+                            </segmentedControl>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="save-button">
+                                <rect key="frame" x="16" y="437" width="361" height="44"/>
+                                <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="save-height"/>
+                                </constraints>
+                                <state key="normal" title="Save"/>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="edit-player-safe-area"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="title-label" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="title-leading"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="title-label" secondAttribute="trailing" constant="16" id="title-trailing"/>
+                            <constraint firstItem="title-label" firstAttribute="top" secondItem="edit-player-safe-area" secondAttribute="top" constant="16" id="title-top"/>
+                            <constraint firstItem="player-image" firstAttribute="centerX" secondItem="edit-player-view" secondAttribute="centerX" id="image-center-x"/>
+                            <constraint firstItem="player-image" firstAttribute="top" secondItem="title-label" secondAttribute="bottom" constant="16" id="image-top"/>
+                            <constraint firstItem="camera-button" firstAttribute="centerX" secondItem="edit-player-view" secondAttribute="centerX" id="camera-center-x"/>
+                            <constraint firstItem="camera-button" firstAttribute="top" secondItem="player-image" secondAttribute="bottom" constant="16" id="camera-top"/>
+                            <constraint firstItem="player-name" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="name-leading"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="player-name" secondAttribute="trailing" constant="16" id="name-trailing"/>
+                            <constraint firstItem="player-name" firstAttribute="top" secondItem="camera-button" secondAttribute="bottom" constant="16" id="name-top"/>
+                            <constraint firstItem="position-number" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="position-leading"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="position-number" secondAttribute="trailing" constant="16" id="position-trailing"/>
+                            <constraint firstItem="position-number" firstAttribute="top" secondItem="player-name" secondAttribute="bottom" constant="16" id="position-top"/>
+                            <constraint firstItem="team-segment" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="team-leading"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="team-segment" secondAttribute="trailing" constant="16" id="team-trailing"/>
+                            <constraint firstItem="team-segment" firstAttribute="top" secondItem="position-number" secondAttribute="bottom" constant="16" id="team-top"/>
+                            <constraint firstItem="save-button" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="save-leading"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="save-button" secondAttribute="trailing" constant="16" id="save-trailing"/>
+                            <constraint firstItem="save-button" firstAttribute="top" secondItem="team-segment" secondAttribute="bottom" constant="16" id="save-top"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Edit Player" id="edit-player-nav-item"/>
+                    <connections>
+                        <outlet property="cameraButton" destination="camera-button" id="camera-outlet"/>
+                        <outlet property="playerImageView" destination="player-image" id="image-outlet"/>
+                        <outlet property="playerNameTextField" destination="player-name" id="name-outlet"/>
+                        <outlet property="positionNumberTextField" destination="position-number" id="position-outlet"/>
+                        <outlet property="saveButton" destination="save-button" id="save-outlet"/>
+                        <outlet property="teamSegmentedControl" destination="team-segment" id="team-outlet"/>
+                        <outlet property="titleLabel" destination="title-label" id="title-outlet"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="edit-player-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1375" y="0"/>
         </scene>
     </scenes>
     <resources>

@@ -8,7 +8,7 @@ class TeamManagementViewController: UIViewController {
     @IBOutlet weak var awayTeamTableView: UITableView!
     @IBOutlet weak var homeTeamSearchBar: UISearchBar!
     @IBOutlet weak var awayTeamSearchBar: UISearchBar!
-    @IBOutlet weak var addPlayerButton: UIButton!
+    @IBOutlet weak var addPlayerButton: UIBarButtonItem!
     
     private var homeTeamPlayers: [Player] = []
     private var awayTeamPlayers: [Player] = []
@@ -28,7 +28,6 @@ class TeamManagementViewController: UIViewController {
     private func setupUI() {
         title = "Team Management"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
-        addPlayerButton.addTarget(self, action: #selector(addPlayerButtonTapped), for: .touchUpInside)
     }
     
     private func setupTableView() {
@@ -79,86 +78,12 @@ class TeamManagementViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func addPlayerButtonTapped() {
-        let alertController = UIAlertController(title: "Select Team", message: "Choose which team to add the player to", preferredStyle: .actionSheet)
-        
-        let homeTeamAction = UIAlertAction(title: match?.home.name ?? "Home Team", style: .default) { [weak self] _ in
-            self?.showAddPlayerAlert(isHomeTeam: true)
-        }
-        
-        let awayTeamAction = UIAlertAction(title: match?.away.name ?? "Away Team", style: .default) { [weak self] _ in
-            self?.showAddPlayerAlert(isHomeTeam: false)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        alertController.addAction(homeTeamAction)
-        alertController.addAction(awayTeamAction)
-        alertController.addAction(cancelAction)
-        
-        // For iPad support
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = addPlayerButton
-            popoverController.sourceRect = addPlayerButton.bounds
-        }
-        
-        present(alertController, animated: true)
-    }
-    
-    private func showAddPlayerAlert(isHomeTeam: Bool) {
-        let alertController = UIAlertController(title: "Add Player", message: nil, preferredStyle: .alert)
-        
-        alertController.addTextField { textField in
-            textField.placeholder = "Player Name"
-        }
-        
-        alertController.addTextField { textField in
-            textField.placeholder = "Position Number"
-            textField.keyboardType = .numberPad
-        }
-        
-        let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-            guard let name = alertController.textFields?[0].text,
-                  let positionText = alertController.textFields?[1].text,
-                  let position = Int(positionText),
-                  let match = self?.match else {
-                return
-            }
-            
-            let newPlayer = Player(playerName: name, positionNumber: position)
-            
-            // Add to Firestore
-            self?.db.collection("matches").document(match.id!).updateData([
-                isHomeTeam ? "home.players" : "away.players": FieldValue.arrayUnion([newPlayer.dictionary])
-            ]) { error in
-                if let error = error {
-                    print("Error adding player: \(error)")
-                    return
-                }
-                
-                // Update local data
-                if isHomeTeam {
-                    self?.homeTeamPlayers.append(newPlayer)
-                    self?.filteredHomePlayers.append(newPlayer)
-                    DispatchQueue.main.async {
-                        self?.homeTeamTableView.reloadData()
-                    }
-                } else {
-                    self?.awayTeamPlayers.append(newPlayer)
-                    self?.filteredAwayPlayers.append(newPlayer)
-                    DispatchQueue.main.async {
-                        self?.awayTeamTableView.reloadData()
-                    }
-                }
-            }
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        alertController.addAction(addAction)
-        alertController.addAction(cancelAction)
-        
-        present(alertController, animated: true)
+    @objc private func addPlayerButtonTapped(_ sender: UIBarButtonItem) {
+        guard let match = match else { return }
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let editPlayerVC = storyboard.instantiateViewController(withIdentifier: "EditPlayerViewController") as! EditPlayerViewController
+        editPlayerVC.match = match
+        navigationController?.pushViewController(editPlayerVC, animated: true)
     }
 }
 
