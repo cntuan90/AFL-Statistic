@@ -373,6 +373,252 @@ class RecordActionViewController: UIViewController {
         awayTeamTableView.reloadData()
     }
     
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updateTime()
+        }
+    }
+    
+    private func updateTime() {
+        let elapsedTime = Date().timeIntervalSince1970 - startTime
+        let hours = Int(elapsedTime) / 3600
+        let minutes = (Int(elapsedTime) % 3600) / 60
+        let seconds = Int(elapsedTime) % 60
+        timeLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+    
+    private func calculateScore() {
+        guard let match = match else { return }
+        
+        let homeActions = match.home.actions.filter { $0.actionQuarter == currentQuarter }
+        let awayActions = match.away.actions.filter { $0.actionQuarter == currentQuarter }
+        
+        let homeGoals = homeActions.filter { $0.action == "goal" }.count
+        let homeBehinds = homeActions.filter { $0.action == "behind" }.count
+        let awayGoals = awayActions.filter { $0.action == "goal" }.count
+        let awayBehinds = awayActions.filter { $0.action == "behind" }.count
+        
+        let homeTotal = homeGoals * 6 + homeBehinds
+        let awayTotal = awayGoals * 6 + awayBehinds
+        
+        homeTeamScoreLabel.text = "\(homeGoals) . \(homeBehinds) (\(homeTotal))"
+        awayTeamScoreLabel.text = "\(awayGoals) . \(awayBehinds) (\(awayTotal))"
+        
+        if homeTotal > awayTotal {
+            homeTeamScoreLabel.textColor = .green
+            awayTeamScoreLabel.textColor = .red
+        } else if homeTotal < awayTotal {
+            homeTeamScoreLabel.textColor = .red
+            awayTeamScoreLabel.textColor = .green
+        } else {
+            homeTeamScoreLabel.textColor = .black
+            awayTeamScoreLabel.textColor = .black
+        }
+    }
+    
+    // MARK: - Action Methods
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func startEndQuarterButtonTapped() {
+        if matchStarted {
+            endQuarter()
+        } else {
+            startMatch()
+        }
+    }
+    
+    @objc private func viewStatsButtonTapped() {
+        // TODO: Implement view stats functionality
+    }
+    
+    @objc private func endMatchButtonTapped() {
+        endMatch()
+    }
+    
+    @objc private func kickButtonTapped() {
+        recordAction("kick")
+    }
+    
+    @objc private func handButtonTapped() {
+        recordAction("hand")
+    }
+    
+    @objc private func markButtonTapped() {
+        recordAction("mark")
+    }
+    
+    @objc private func tackleButtonTapped() {
+        recordAction("tackle")
+    }
+    
+    @objc private func goalButtonTapped() {
+        guard let selectedPlayer = getSelectedPlayer() else {
+            showAlert(message: "Please select a player to record the action")
+            return
+        }
+        
+        if let lastAction = lastAction,
+           lastAction.action == "kick",
+           lastAction.positionNumber == selectedPlayer.positionNumber,
+           lastAction.actionTeam == selectedTeam {
+            recordAction("goal")
+        } else {
+            showAlert(message: "Goal can only be recorded after a Kick with a same player in a same team!")
+        }
+    }
+    
+    @objc private func behindButtonTapped() {
+        guard let selectedPlayer = getSelectedPlayer() else {
+            showAlert(message: "Please select a player to record the action")
+            return
+        }
+        
+        if let lastAction = lastAction,
+           (lastAction.action == "kick" || lastAction.action == "hand"),
+           lastAction.positionNumber == selectedPlayer.positionNumber,
+           lastAction.actionTeam == selectedTeam {
+            recordAction("behind")
+        } else {
+            showAlert(message: "Behind can only be recorded after a Kick or a Handball with a same player in a same team!")
+        }
+    }
+    
+    private func startMatch() {
+        guard let match = match else { return }
+        
+        matchStarted = true
+        startTime = Date().timeIntervalSince1970
+        startEndQuarterButton.setTitle("END QUARTER", for: .normal)
+        startTimer()
+        
+        updateMatchData()
+    }
+    
+    private func endQuarter() {
+        guard let match = match else { return }
+        
+        if currentQuarter < 4 {
+            currentQuarter += 1
+            startTime = Date().timeIntervalSince1970
+            startTimer()
+        } else {
+            endMatch()
+        }
+        
+        updateMatchData()
+    }
+    
+    private func endMatch() {
+        guard var match = match else { return }
+        
+        timer?.invalidate()
+        timer = nil
+        matchStarted = false
+        
+        // Calculate final scores and determine winner
+        let homeActions = match.home.actions
+        let awayActions = match.away.actions
+        
+        let homeGoals = homeActions.filter { $0.action == "goal" }.count
+        let homeBehinds = homeActions.filter { $0.action == "behind" }.count
+        let awayGoals = awayActions.filter { $0.action == "goal" }.count
+        let awayBehinds = awayActions.filter { $0.action == "behind" }.count
+        
+        let homeTotal = homeGoals * 6 + homeBehinds
+        let awayTotal = awayGoals * 6 + awayBehinds
+        
+        let winner = homeTotal > awayTotal ? match.home.name : (awayTotal > homeTotal ? match.away.name : "Draw")
+        
+        // Create a new match instance with updated values
+        let updatedMatch = Match(
+            id: match.id,
+            home: match.home,
+            away: match.away,
+            status: "Completed",
+            currentQuarter: match.currentQuarter,
+            startTime: match.startTime,
+            lastAction: match.lastAction,
+            matchStarted: false,
+            date: match.date,
+            winner: winner
+        )
+        
+        // Update the match property
+        self.match = updatedMatch
+        
+        updateMatchData()
+        navigationController?.popViewController(animated: true)
+    }
+    
+    private func recordAction(_ actionType: String) {
+        guard var match = match else { return }
+        
+        if !matchStarted {
+            showAlert(message: "Please start the match before recording actions")
+            return
+        }
+        
+        guard let selectedPlayer = getSelectedPlayer() else {
+            showAlert(message: "Please select a player to record the action")
+            return
+        }
+        
+        if selectedPlayer.injuryStatus {
+            showAlert(message: "\(selectedPlayer.playerName) is injured, action cannot be recorded")
+            return
+        }
+        
+        let elapsedTime = Date().timeIntervalSince1970 - startTime
+        let minutes = Int(elapsedTime) / 60
+        let seconds = Int(elapsedTime) % 60
+        let timeString = String(format: "%02d:%02d", minutes, seconds)
+        
+        let action = Match.Action(
+            action: actionType,
+            actionTeam: selectedTeam!,
+            time: timeString,
+            playerName: selectedPlayer.playerName,
+            positionNumber: selectedPlayer.positionNumber,
+            actionQuarter: currentQuarter
+        )
+        
+        // Create new home and away teams with updated actions
+        var updatedHomeTeam = match.home
+        var updatedAwayTeam = match.away
+        
+        if selectedTeam == "HOME" {
+            updatedHomeTeam.actions.append(action)
+        } else {
+            updatedAwayTeam.actions.append(action)
+        }
+        
+        // Create a new match instance with updated teams
+        let updatedMatch = Match(
+            id: match.id,
+            home: updatedHomeTeam,
+            away: updatedAwayTeam,
+            status: match.status,
+            currentQuarter: match.currentQuarter,
+            startTime: match.startTime,
+            lastAction: action,
+            matchStarted: match.matchStarted,
+            date: match.date,
+            winner: match.winner
+        )
+        
+        // Update the match property
+        self.match = updatedMatch
+        
+        lastAction = action
+        updateMatchData()
+        calculateScore()
+        
+        showAlert(message: "\(actionType.capitalized) action for \(selectedPlayer.playerName) (\(selectedPlayer.positionNumber)) recorded successfully!")
+    }
+    
     private func getSelectedPlayer() -> Player? {
         if selectedTeam == "HOME", let index = selectedHomePlayerIndex {
             return match?.home.players[index]
