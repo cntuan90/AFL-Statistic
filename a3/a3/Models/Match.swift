@@ -3,14 +3,15 @@ import FirebaseFirestore
 
 struct Match: Codable {
     let id: String?
-    let home: Team
-    let away: Team
-    let status: String
-    let currentQuarter: Int
-    let startTime: TimeInterval
-    let lastAction: Action?
-    let matchStarted: Bool
-    let date: String
+    var home: Team
+    var away: Team
+    var status: String
+    var currentQuarter: Int
+    var startTime: TimeInterval
+    var lastAction: Action?
+    var matchStarted: Bool
+    var date: String
+    var winner: String?
     
     struct Team: Codable {
         let name: String
@@ -49,6 +50,7 @@ extension Match {
             self.lastAction = nil
             self.matchStarted = false
             self.date = ""
+            self.winner = nil
             return nil
         }
         
@@ -112,6 +114,7 @@ extension Match {
                 self.lastAction = nil
                 self.matchStarted = false
                 self.date = ""
+                self.winner = nil
                 return nil
             }
             lastAction = Action(action: action,
@@ -133,5 +136,6 @@ extension Match {
         self.lastAction = lastAction
         self.matchStarted = matchStarted
         self.date = date
+        self.winner = data["winner"] as? String
     }
 }

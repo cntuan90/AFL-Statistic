@@ -107,16 +107,9 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let match = matches[indexPath.row]
         
-//        if match.status == "New" {
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let editTeamVC = storyboard.instantiateViewController(withIdentifier: "EditTeamViewController") as! EditTeamViewController
-//            editTeamVC.match = match
-//            navigationController?.pushViewController(editTeamVC, animated: true)
-//        } else {
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let recordActionVC = storyboard.instantiateViewController(withIdentifier: "RecordActionViewController") as! RecordActionViewController
-//            recordActionVC.match = match
-//            navigationController?.pushViewController(recordActionVC, animated: true)
-//        }
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let recordActionVC = storyboard.instantiateViewController(withIdentifier: "RecordActionViewController") as! RecordActionViewController
+        recordActionVC.match = match
+        navigationController?.pushViewController(recordActionVC, animated: true)
     }
 }
