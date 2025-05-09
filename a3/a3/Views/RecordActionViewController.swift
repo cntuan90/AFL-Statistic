@@ -23,18 +23,10 @@ class RecordActionViewController: UIViewController {
         return button
     }()
     
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "STATS RECORDING"
-        label.font = .systemFont(ofSize: 30, weight: .bold)
-        label.textAlignment = .center
-        return label
-    }()
-    
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.text = "00:00:00"
-        label.font = .systemFont(ofSize: 30)
+        label.font = .systemFont(ofSize: 10)
         label.textAlignment = .center
         return label
     }()
@@ -207,7 +199,6 @@ class RecordActionViewController: UIViewController {
         
         // Add subviews
         view.addSubview(backButton)
-        view.addSubview(titleLabel)
         view.addSubview(timeLabel)
         view.addSubview(homeTeamNameLabel)
         view.addSubview(awayTeamNameLabel)
@@ -239,17 +230,9 @@ class RecordActionViewController: UIViewController {
             backButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        // Title label
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-        
         // Time label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             timeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
