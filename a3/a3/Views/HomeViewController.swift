@@ -58,7 +58,9 @@ class HomeViewController: UIViewController {
     }
     
     private func setupFirestoreListener() {
+        print("Setting up Firestore listener...")
         listener = db.collection("matches")
+            .whereField("status", isNotEqualTo: "Completed")
             .addSnapshotListener { [weak self] snapshot, error in
                 if let error = error {
                     print("Error listening to Firestore updates: \(error)")
@@ -70,10 +72,18 @@ class HomeViewController: UIViewController {
                     return
                 }
                 
+                print("Found \(documents.count) documents")
+                
                 self?.matches = documents.compactMap { document in
-                    Match(document: document)
+                    print("Processing document: \(document.documentID)")
+                    return Match(document: document)
                 }
-                self?.tableView.reloadData()
+                
+                print("Successfully loaded \(self?.matches.count ?? 0) matches")
+                
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
             }
     }
     
@@ -95,7 +105,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         
         var content = cell.defaultContentConfiguration()
         content.text = "\(match.home.name) vs \(match.away.name)"
-        content.secondaryText = match.status
+        content.secondaryText = "\(match.status) - \(match.date)"
         
         cell.contentConfiguration = content
         cell.accessoryType = .disclosureIndicator

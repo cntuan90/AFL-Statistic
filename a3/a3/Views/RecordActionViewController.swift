@@ -516,19 +516,10 @@ class RecordActionViewController: UIViewController {
         let winner = homeTotal > awayTotal ? match.home.name : (awayTotal > homeTotal ? match.away.name : "Draw")
         
         // Create a new match instance with updated values
-        let updatedMatch = Match(
-            id: match.id,
-            home: match.home,
-            away: match.away,
-            status: "Completed",
-            currentQuarter: match.currentQuarter,
-            startTime: match.startTime,
-            lastAction: match.lastAction,
-            matchStarted: false,
-            date: match.date,
-            winner: winner
-        )
-        
+        var updatedMatch = match
+        updatedMatch.status = "Completed"
+        updatedMatch.winner = winner
+
         // Update the match property
         self.match = updatedMatch
         
@@ -579,18 +570,8 @@ class RecordActionViewController: UIViewController {
         }
         
         // Create a new match instance with updated teams
-        let updatedMatch = Match(
-            id: match.id,
-            home: updatedHomeTeam,
-            away: updatedAwayTeam,
-            status: match.status,
-            currentQuarter: match.currentQuarter,
-            startTime: match.startTime,
-            lastAction: action,
-            matchStarted: match.matchStarted,
-            date: match.date,
-            winner: match.winner
-        )
+        var updatedMatch = match
+        updatedMatch.status = "Completed"
         
         // Update the match property
         self.match = updatedMatch

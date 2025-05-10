@@ -145,7 +145,6 @@ class AddMatchViewController: UIViewController {
         
         // Create new match object
         let newMatch = Match(
-            id: matchID,
             home: Match.Team(name: homeTeamName, players: [], actions: []),
             away: Match.Team(name: awayTeamName, players: [], actions: []),
             status: "New",
@@ -153,7 +152,8 @@ class AddMatchViewController: UIViewController {
             startTime: currentTimeInterval,
             lastAction: nil,
             matchStarted: false,
-            date: dateString
+            date: dateString,
+            winner: ""
         )
         
         // Convert Match object to dictionary

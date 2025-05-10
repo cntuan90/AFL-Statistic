@@ -14,9 +14,16 @@ struct Match: Codable {
     var winner: String?
     
     struct Team: Codable {
-        let name: String
+        var name: String
         var players: [Player]
-        var actions: [Action]
+        var actions: [Action] = []
+        
+        var dictionary: [String: Any] {
+            return [
+                "name": name,
+                "players": players.map { $0.dictionary }
+            ]
+        }
     }
     
     struct Action: Codable {
@@ -27,11 +34,26 @@ struct Match: Codable {
         let positionNumber: Int
         let actionQuarter: Int
     }
+    
+    init(home: Team, away: Team, status: String, currentQuarter: Int, startTime: TimeInterval, lastAction: Action?, matchStarted: Bool, date: String, winner: String?) {
+        self.id = nil
+        self.home = home
+        self.away = away
+        self.status = status
+        self.currentQuarter = currentQuarter
+        self.startTime = startTime
+        self.lastAction = lastAction
+        self.matchStarted = matchStarted
+        self.date = date
+        self.winner = winner
+    }
 }
 
 extension Match {
     init?(document: QueryDocumentSnapshot) {
         let data = document.data()
+        
+        // Parse home team
         guard let homeData = data["home"] as? [String: Any],
               let awayData = data["away"] as? [String: Any],
               let homeName = homeData["name"] as? String,
@@ -41,16 +63,6 @@ extension Match {
               let startTime = data["startTime"] as? TimeInterval,
               let matchStarted = data["matchStarted"] as? Bool,
               let date = data["date"] as? String else {
-            self.id = nil
-            self.home = Team(name: "", players: [], actions: [])
-            self.away = Team(name: "", players: [], actions: [])
-            self.status = ""
-            self.currentQuarter = 0
-            self.startTime = 0
-            self.lastAction = nil
-            self.matchStarted = false
-            self.date = ""
-            self.winner = nil
             return nil
         }
         
@@ -105,24 +117,14 @@ extension Match {
                   let playerName = lastActionData["playerName"] as? String,
                   let positionNumber = lastActionData["positionNumber"] as? Int,
                   let actionQuarter = lastActionData["actionQuarter"] as? Int else {
-                self.id = nil
-                self.home = Team(name: "", players: [], actions: [])
-                self.away = Team(name: "", players: [], actions: [])
-                self.status = ""
-                self.currentQuarter = 0
-                self.startTime = 0
-                self.lastAction = nil
-                self.matchStarted = false
-                self.date = ""
-                self.winner = nil
                 return nil
             }
             lastAction = Action(action: action,
-                                actionTeam: actionTeam,
-                                time: time,
-                                playerName: playerName,
-                                positionNumber: positionNumber,
-                                actionQuarter: actionQuarter)
+                              actionTeam: actionTeam,
+                              time: time,
+                              playerName: playerName,
+                              positionNumber: positionNumber,
+                              actionQuarter: actionQuarter)
         } else {
             lastAction = nil
         }
