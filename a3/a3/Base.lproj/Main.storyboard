@@ -289,14 +289,14 @@
                                 <rect key="frame" x="16" y="75" width="361" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-button">
-                                        <rect key="frame" x="0.0" y="0.0" width="170.5" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="170.66666666666666" height="30"/>
                                         <state key="normal" title="Home Team"/>
                                         <connections>
                                             <action selector="homeTeamButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="home-team-button-action"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-button">
-                                        <rect key="frame" x="190.5" y="0.0" width="170.5" height="30"/>
+                                        <rect key="frame" x="190.66666666666663" y="0.0" width="170.33333333333337" height="30"/>
                                         <state key="normal" title="Away Team"/>
                                         <connections>
                                             <action selector="awayTeamButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="away-team-button-action"/>
@@ -305,14 +305,14 @@
                                 </subviews>
                             </stackView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-table-view">
-                                <rect key="frame" x="16" y="113" width="170.5" height="200"/>
+                                <rect key="frame" x="16" y="113" width="170.66666666666666" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="record-home-player-cell">
-                                        <rect key="frame" x="0.0" y="50" width="170.5" height="44"/>
+                                        <rect key="frame" x="0.0" y="50" width="170.66666666666666" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="record-home-player-cell" id="record-home-player-content-view">
-                                            <rect key="frame" x="0.0" y="0.0" width="170.5" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="170.66666666666666" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -323,14 +323,14 @@
                                 </connections>
                             </tableView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-table-view">
-                                <rect key="frame" x="206.5" y="113" width="170.5" height="200"/>
+                                <rect key="frame" x="206.66666666666663" y="113" width="170.33333333333337" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="record-away-player-cell">
-                                        <rect key="frame" x="0.0" y="50" width="170.5" height="44"/>
+                                        <rect key="frame" x="0.0" y="50" width="170.33333333333337" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="record-away-player-cell" id="record-away-player-content-view">
-                                            <rect key="frame" x="0.0" y="0.0" width="170.5" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="170.33333333333337" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -344,28 +344,28 @@
                                 <rect key="frame" x="16" y="321" width="361" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="goal-button">
-                                        <rect key="frame" x="0.0" y="0.0" width="85.333333333333343" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="82.666666666666671" height="30"/>
                                         <state key="normal" title="Goal"/>
                                         <connections>
                                             <action selector="goalButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="goal-button-action"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="behinds-button">
-                                        <rect key="frame" x="95.333333333333343" y="0.0" width="85.333333333333343" height="30"/>
+                                        <rect key="frame" x="92.666666666666686" y="0.0" width="83" height="30"/>
                                         <state key="normal" title="Behinds"/>
                                         <connections>
                                             <action selector="behindsButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="behinds-button-action"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="foul-button">
-                                        <rect key="frame" x="190.66666666666666" y="0.0" width="85.333333333333343" height="30"/>
+                                        <rect key="frame" x="185.66666666666666" y="0.0" width="82.666666666666657" height="30"/>
                                         <state key="normal" title="Foul"/>
                                         <connections>
                                             <action selector="foulButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="foul-button-action"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="out-of-bounds-button">
-                                        <rect key="frame" x="286" y="0.0" width="75" height="30"/>
+                                        <rect key="frame" x="278.33333333333331" y="0.0" width="82.666666666666686" height="30"/>
                                         <state key="normal" title="Out"/>
                                         <connections>
                                             <action selector="outOfBoundsButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="out-of-bounds-button-action"/>
@@ -377,20 +377,20 @@
                         <viewLayoutGuide key="safeArea" id="record-action-safe-area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="top-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="top-buttons-stack-leading"/>
-                            <constraint firstItem="top-buttons-stack" firstAttribute="top" secondItem="record-action-safe-area" secondAttribute="top" constant="16" id="top-buttons-stack-top"/>
-                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="top-buttons-stack" secondAttribute="trailing" constant="16" id="top-buttons-stack-trailing"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="home-team-table-view-leading"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="home-team-table-view-top"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="width" secondItem="away-team-table-view" secondAttribute="width" id="home-team-table-view-width"/>
+                            <constraint firstItem="action-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="action-buttons-stack-leading"/>
+                            <constraint firstItem="action-buttons-stack" firstAttribute="top" secondItem="home-team-table-view" secondAttribute="bottom" constant="8" id="action-buttons-stack-top"/>
+                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="action-buttons-stack" secondAttribute="trailing" constant="16" id="action-buttons-stack-trailing"/>
+                            <constraint firstItem="away-team-table-view" firstAttribute="height" secondItem="home-team-table-view" secondAttribute="height" id="away-team-table-view-height"/>
                             <constraint firstItem="away-team-table-view" firstAttribute="leading" secondItem="home-team-table-view" secondAttribute="trailing" constant="20" id="away-team-table-view-leading"/>
                             <constraint firstItem="away-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="away-team-table-view-top"/>
                             <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="away-team-table-view" secondAttribute="trailing" constant="16" id="away-team-table-view-trailing"/>
                             <constraint firstItem="home-team-table-view" firstAttribute="height" constant="200" id="home-team-table-view-height"/>
-                            <constraint firstItem="away-team-table-view" firstAttribute="height" secondItem="home-team-table-view" secondAttribute="height" id="away-team-table-view-height"/>
-                            <constraint firstItem="action-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="action-buttons-stack-leading"/>
-                            <constraint firstItem="action-buttons-stack" firstAttribute="top" secondItem="home-team-table-view" secondAttribute="bottom" constant="8" id="action-buttons-stack-top"/>
-                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="action-buttons-stack" secondAttribute="trailing" constant="16" id="action-buttons-stack-trailing"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="home-team-table-view-leading"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="home-team-table-view-top"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="width" secondItem="away-team-table-view" secondAttribute="width" id="home-team-table-view-width"/>
+                            <constraint firstItem="top-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="top-buttons-stack-leading"/>
+                            <constraint firstItem="top-buttons-stack" firstAttribute="top" secondItem="record-action-safe-area" secondAttribute="top" constant="16" id="top-buttons-stack-top"/>
+                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="top-buttons-stack" secondAttribute="trailing" constant="16" id="top-buttons-stack-trailing"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Record Action" id="record-action-nav-item">
@@ -403,7 +403,67 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="record-action-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1375" y="528"/>
+            <point key="canvasLocation" x="1375" y="554"/>
+        </scene>
+        <!--History View Controller-->
+        <scene sceneID="history-scene">
+            <objects>
+                <viewController storyboardIdentifier="HistoryViewController" id="history-vc" customClass="HistoryViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="history-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="Eyf-4j-thV"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="history-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1547" y="580"/>
+        </scene>
+        <!--History Tab View Controller-->
+        <scene sceneID="history-tab-scene">
+            <objects>
+                <viewController storyboardIdentifier="HistoryTabViewController" id="history-tab-vc" customClass="HistoryTabViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="history-tab-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="kUi-mu-kgv"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="history-tab-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-138" y="580"/>
+        </scene>
+        <!--Timeline View Controller-->
+        <scene sceneID="timeline-scene">
+            <objects>
+                <viewController storyboardIdentifier="TimelineViewController" id="timeline-vc" customClass="TimelineViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="timeline-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="9OQ-m6-vxM"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="timeline-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="575" y="580"/>
+        </scene>
+        <!--Summary View Controller-->
+        <scene sceneID="summary-scene">
+            <objects>
+                <viewController storyboardIdentifier="SummaryViewController" id="summary-vc" customClass="SummaryViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="summary-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="yuv-tU-h10"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="summary-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-836" y="580"/>
         </scene>
     </scenes>
     <resources>

@@ -3,45 +3,31 @@ import FirebaseFirestore
 
 class TimelineViewController: UIViewController {
     // MARK: - Properties
-    private var match: Match?
+    private var match: Match!
+    private var tableView: UITableView!
     private let db = Firestore.firestore()
-    
-    // MARK: - UI Elements
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "TimelineCell")
-        tableView.separatorStyle = .none
-        return tableView
-    }()
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupTableView()
         loadMatchData()
     }
     
     // MARK: - Setup Methods
-    private func setupUI() {
-        view.backgroundColor = .white
-        
-        // Add subviews
+    private func setupTableView() {
+        tableView = UITableView(frame: view.bounds, style: .plain)
+        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "TimelineCell")
         view.addSubview(tableView)
-        
-        // Setup constraints
-        setupConstraints()
     }
     
-    private func setupConstraints() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+    // MARK: - Configuration
+    func configure(with match: Match) {
+        self.match = match
+        tableView.reloadData()
     }
     
     // MARK: - Data Methods
@@ -71,97 +57,28 @@ class TimelineViewController: UIViewController {
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
 extension TimelineViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 4 // Quarters
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Quarter \(section + 1)"
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return getAllActions().count
+        let quarterActions = (match.home.actions + match.away.actions).filter { $0.actionQuarter == section + 1 }
+        return quarterActions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TimelineCell", for: indexPath)
         
-        let actions = getAllActions()
-        let action = actions[indexPath.row]
+        let quarterActions = (match.home.actions + match.away.actions)
+            .filter { $0.actionQuarter == indexPath.section + 1 }
+            .sorted { $0.time < $1.time }
         
-        // Create a container view for the cell content
-        let containerView = UIView()
-        containerView.backgroundColor = .white
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor.lightGray.cgColor
-        containerView.layer.cornerRadius = 8
-        
-        // Create a vertical line for the timeline
-        let timelineLine = UIView()
-        timelineLine.backgroundColor = UIColor(red: 0.2, green: 0.51, blue: 0.74, alpha: 1.0)
-        
-        // Create a circle for the timeline point
-        let timelinePoint = UIView()
-        timelinePoint.backgroundColor = UIColor(red: 0.2, green: 0.51, blue: 0.74, alpha: 1.0)
-        timelinePoint.layer.cornerRadius = 6
-        
-        // Create labels for the action details
-        let timeLabel = UILabel()
-        timeLabel.text = action.time
-        timeLabel.font = .systemFont(ofSize: 14)
-        timeLabel.textColor = .gray
-        
-        let actionLabel = UILabel()
-        actionLabel.text = "\(action.playerName) (\(action.positionNumber)) - \(action.action.capitalized)"
-        actionLabel.font = .systemFont(ofSize: 16)
-        
-        let teamLabel = UILabel()
-        teamLabel.text = action.actionTeam
-        teamLabel.font = .systemFont(ofSize: 14)
-        teamLabel.textColor = .gray
-        
-        // Add subviews
-        containerView.addSubview(timelineLine)
-        containerView.addSubview(timelinePoint)
-        containerView.addSubview(timeLabel)
-        containerView.addSubview(actionLabel)
-        containerView.addSubview(teamLabel)
-        
-        // Setup constraints for the container view
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 8),
-            containerView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -8)
-        ])
-        
-        // Setup constraints for the timeline elements
-        timelineLine.translatesAutoresizingMaskIntoConstraints = false
-        timelinePoint.translatesAutoresizingMaskIntoConstraints = false
-        timeLabel.translatesAutoresizingMaskIntoConstraints = false
-        actionLabel.translatesAutoresizingMaskIntoConstraints = false
-        teamLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            timelineLine.topAnchor.constraint(equalTo: containerView.topAnchor),
-            timelineLine.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            timelineLine.widthAnchor.constraint(equalToConstant: 2),
-            timelineLine.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-            
-            timelinePoint.centerXAnchor.constraint(equalTo: timelineLine.centerXAnchor),
-            timelinePoint.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            timelinePoint.widthAnchor.constraint(equalToConstant: 12),
-            timelinePoint.heightAnchor.constraint(equalToConstant: 12),
-            
-            timeLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
-            timeLabel.leadingAnchor.constraint(equalTo: timelinePoint.trailingAnchor, constant: 16),
-            timeLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            
-            actionLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 4),
-            actionLabel.leadingAnchor.constraint(equalTo: timelinePoint.trailingAnchor, constant: 16),
-            actionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            
-            teamLabel.topAnchor.constraint(equalTo: actionLabel.bottomAnchor, constant: 4),
-            teamLabel.leadingAnchor.constraint(equalTo: timelinePoint.trailingAnchor, constant: 16),
-            teamLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            teamLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8)
-        ])
-        
-        cell.contentView.addSubview(containerView)
-        cell.selectionStyle = .none
+        let action = quarterActions[indexPath.row]
+        cell.textLabel?.text = "\(action.time) - \(action.playerName) (\(action.action))"
         
         return cell
     }

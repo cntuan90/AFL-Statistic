@@ -3,22 +3,12 @@ import FirebaseFirestore
 
 class SummaryViewController: UIViewController {
     // MARK: - Properties
-    var match: Match?
+    private var match: Match!
+    private var scrollView: UIScrollView!
+    private var contentView: UIView!
     private let db = Firestore.firestore()
     
     // MARK: - UI Elements
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
-        return scrollView
-    }()
-    
-    private lazy var contentView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        return view
-    }()
-    
     private lazy var matchInfoView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
@@ -72,40 +62,22 @@ class SummaryViewController: UIViewController {
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupScrollView()
         loadMatchData()
     }
     
     // MARK: - Setup Methods
-    private func setupUI() {
-        view.backgroundColor = .white
-        
-        // Add subviews
+    private func setupScrollView() {
+        // Create scroll view
+        scrollView = UIScrollView(frame: view.bounds)
+        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(matchInfoView)
-        matchInfoView.addSubview(homeTeamLabel)
-        matchInfoView.addSubview(awayTeamLabel)
-        matchInfoView.addSubview(scoreLabel)
-        matchInfoView.addSubview(dateLabel)
-        contentView.addSubview(statsTableView)
         
-        // Setup constraints
-        setupConstraints()
-    }
-    
-    private func setupConstraints() {
-        // Scroll view
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
-        // Content view
+        // Create content view
+        contentView = UIView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentView)
+        
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -113,53 +85,89 @@ class SummaryViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
+    }
+    
+    private func updateSummary() {
+        // Remove existing subviews
+        contentView.subviews.forEach { $0.removeFromSuperview() }
         
-        // Match info view
-        matchInfoView.translatesAutoresizingMaskIntoConstraints = false
+        // Create summary content
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(stackView)
+        
         NSLayoutConstraint.activate([
-            matchInfoView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            matchInfoView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            matchInfoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
         
-        // Team labels
-        homeTeamLabel.translatesAutoresizingMaskIntoConstraints = false
-        awayTeamLabel.translatesAutoresizingMaskIntoConstraints = false
+        // Add match details
+        let matchInfoView = createInfoView(title: "Match Information", items: [
+            "Date: \(match.date)",
+            "Status: \(match.status)",
+            "Winner: \(match.winner ?? "TBD")"
+        ])
+        stackView.addArrangedSubview(matchInfoView)
+        
+        // Add team statistics
+        let homeStatsView = createInfoView(title: "\(match.home.name) Statistics", items: [
+            "Total Actions: \(match.home.actions.count)",
+            "Goals: \(match.home.actions.filter { $0.action == "goal" }.count)",
+            "Behinds: \(match.home.actions.filter { $0.action == "behind" }.count)"
+        ])
+        stackView.addArrangedSubview(homeStatsView)
+        
+        let awayStatsView = createInfoView(title: "\(match.away.name) Statistics", items: [
+            "Total Actions: \(match.away.actions.count)",
+            "Goals: \(match.away.actions.filter { $0.action == "goal" }.count)",
+            "Behinds: \(match.away.actions.filter { $0.action == "behind" }.count)"
+        ])
+        stackView.addArrangedSubview(awayStatsView)
+    }
+    
+    private func createInfoView(title: String, items: [String]) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = .systemBackground
+        containerView.layer.cornerRadius = 8
+        containerView.layer.borderWidth = 1
+        containerView.layer.borderColor = UIColor.systemGray4.cgColor
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .boldSystemFont(ofSize: 18)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        items.forEach { item in
+            let label = UILabel()
+            label.text = item
+            label.font = .systemFont(ofSize: 16)
+            stackView.addArrangedSubview(label)
+        }
+        
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(stackView)
+        
         NSLayoutConstraint.activate([
-            homeTeamLabel.topAnchor.constraint(equalTo: matchInfoView.topAnchor, constant: 16),
-            homeTeamLabel.leadingAnchor.constraint(equalTo: matchInfoView.leadingAnchor, constant: 16),
-            homeTeamLabel.trailingAnchor.constraint(equalTo: matchInfoView.trailingAnchor, constant: -16),
+            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
             
-            awayTeamLabel.topAnchor.constraint(equalTo: homeTeamLabel.bottomAnchor, constant: 8),
-            awayTeamLabel.leadingAnchor.constraint(equalTo: matchInfoView.leadingAnchor, constant: 16),
-            awayTeamLabel.trailingAnchor.constraint(equalTo: matchInfoView.trailingAnchor, constant: -16)
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12)
         ])
         
-        // Score label
-        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            scoreLabel.topAnchor.constraint(equalTo: awayTeamLabel.bottomAnchor, constant: 16),
-            scoreLabel.leadingAnchor.constraint(equalTo: matchInfoView.leadingAnchor, constant: 16),
-            scoreLabel.trailingAnchor.constraint(equalTo: matchInfoView.trailingAnchor, constant: -16)
-        ])
-        
-        // Date label
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            dateLabel.topAnchor.constraint(equalTo: scoreLabel.bottomAnchor, constant: 8),
-            dateLabel.leadingAnchor.constraint(equalTo: matchInfoView.leadingAnchor, constant: 16),
-            dateLabel.trailingAnchor.constraint(equalTo: matchInfoView.trailingAnchor, constant: -16),
-            dateLabel.bottomAnchor.constraint(equalTo: matchInfoView.bottomAnchor, constant: -16)
-        ])
-        
-        // Stats table view
-        statsTableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            statsTableView.topAnchor.constraint(equalTo: matchInfoView.bottomAnchor, constant: 16),
-            statsTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            statsTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            statsTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
-        ])
+        return containerView
     }
     
     // MARK: - Data Methods
@@ -252,5 +260,13 @@ extension SummaryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 44
+    }
+}
+
+// MARK: - Configuration
+extension SummaryViewController {
+    func configure(with match: Match) {
+        self.match = match
+        updateSummary()
     }
 } 
