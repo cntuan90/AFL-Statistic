@@ -340,46 +340,10 @@
                                     <outlet property="delegate" destination="record-action-vc" id="away-team-table-view-delegate"/>
                                 </connections>
                             </tableView>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="action-buttons-stack">
-                                <rect key="frame" x="16" y="321" width="361" height="30"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="goal-button">
-                                        <rect key="frame" x="0.0" y="0.0" width="82.666666666666671" height="30"/>
-                                        <state key="normal" title="Goal"/>
-                                        <connections>
-                                            <action selector="goalButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="goal-button-action"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="behinds-button">
-                                        <rect key="frame" x="92.666666666666686" y="0.0" width="83" height="30"/>
-                                        <state key="normal" title="Behinds"/>
-                                        <connections>
-                                            <action selector="behindsButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="behinds-button-action"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="foul-button">
-                                        <rect key="frame" x="185.66666666666666" y="0.0" width="82.666666666666657" height="30"/>
-                                        <state key="normal" title="Foul"/>
-                                        <connections>
-                                            <action selector="foulButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="foul-button-action"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="out-of-bounds-button">
-                                        <rect key="frame" x="278.33333333333331" y="0.0" width="82.666666666666686" height="30"/>
-                                        <state key="normal" title="Out"/>
-                                        <connections>
-                                            <action selector="outOfBoundsButtonTapped:" destination="record-action-vc" eventType="touchUpInside" id="out-of-bounds-button-action"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="record-action-safe-area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="action-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="action-buttons-stack-leading"/>
-                            <constraint firstItem="action-buttons-stack" firstAttribute="top" secondItem="home-team-table-view" secondAttribute="bottom" constant="8" id="action-buttons-stack-top"/>
-                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="action-buttons-stack" secondAttribute="trailing" constant="16" id="action-buttons-stack-trailing"/>
                             <constraint firstItem="away-team-table-view" firstAttribute="height" secondItem="home-team-table-view" secondAttribute="height" id="away-team-table-view-height"/>
                             <constraint firstItem="away-team-table-view" firstAttribute="leading" secondItem="home-team-table-view" secondAttribute="trailing" constant="20" id="away-team-table-view-leading"/>
                             <constraint firstItem="away-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="away-team-table-view-top"/>
@@ -394,7 +358,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Record Action" id="record-action-nav-item">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="back-button">
+                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" id="back-button">
                             <connections>
                                 <action selector="backButtonTapped" destination="record-action-vc" id="back-button-action"/>
                             </connections>
@@ -403,7 +367,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="record-action-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1375" y="554"/>
+            <point key="canvasLocation" x="1375" y="580"/>
         </scene>
         <!--History View Controller-->
         <scene sceneID="history-scene">
@@ -467,6 +431,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="chevron.left" catalog="system" width="97" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

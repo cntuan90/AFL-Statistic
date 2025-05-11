@@ -15,14 +15,6 @@ class RecordActionViewController: UIViewController {
     private let db = Firestore.firestore()
     
     // MARK: - UI Elements
-    private lazy var backButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        button.tintColor = .black
-        button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.text = "00:00:00"
@@ -198,7 +190,6 @@ class RecordActionViewController: UIViewController {
         view.backgroundColor = .white
         
         // Add subviews
-        view.addSubview(backButton)
         view.addSubview(timeLabel)
         view.addSubview(homeTeamNameLabel)
         view.addSubview(awayTeamNameLabel)
@@ -221,15 +212,6 @@ class RecordActionViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        // Back button
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            backButton.widthAnchor.constraint(equalToConstant: 50),
-            backButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
         // Time label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
