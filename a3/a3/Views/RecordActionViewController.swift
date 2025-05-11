@@ -430,6 +430,7 @@ class RecordActionViewController: UIViewController {
     @objc private func teamManagementButtonTapped(_ sender: UIBarButtonItem) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as? TeamManagementViewController {
+            teamManagementVC.match = match
             navigationController?.pushViewController(teamManagementVC, animated: true)
         }
     }
@@ -443,7 +444,9 @@ class RecordActionViewController: UIViewController {
     }
     
     @objc private func viewStatsButtonTapped() {
-        // TODO: Implement view stats functionality
+        let statsComparisonVC = StatsComparisonViewController()
+        statsComparisonVC.match = match
+        navigationController?.pushViewController(statsComparisonVC, animated: true)
     }
     
     @objc private func endMatchButtonTapped() {

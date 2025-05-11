@@ -1,6 +1,7 @@
 import UIKit
 import FirebaseFirestore
 import PhotosUI
+import AVFoundation
 
 class EditPlayerViewController: UIViewController {
     @IBOutlet weak var titleLabel: UILabel!
@@ -43,9 +44,14 @@ class EditPlayerViewController: UIViewController {
         positionNumberTextField.placeholder = "Position Number"
         positionNumberTextField.keyboardType = .numberPad
         
-        // Setup segmented control
-        teamSegmentedControl.setTitle("Home", forSegmentAt: 0)
-        teamSegmentedControl.setTitle("Away", forSegmentAt: 1)
+        // Setup segmented control with team names
+        if let match = match {
+            teamSegmentedControl.setTitle(match.home.name, forSegmentAt: 0)
+            teamSegmentedControl.setTitle(match.away.name, forSegmentAt: 1)
+        } else {
+            teamSegmentedControl.setTitle("Home", forSegmentAt: 0)
+            teamSegmentedControl.setTitle("Away", forSegmentAt: 1)
+        }
     }
     
     private func loadData() {
@@ -57,6 +63,10 @@ class EditPlayerViewController: UIViewController {
             
             // Set team segment based on which team the player belongs to
             if let match = match {
+                // Update team names in segmented control
+                teamSegmentedControl.setTitle(match.home.name, forSegmentAt: 0)
+                teamSegmentedControl.setTitle(match.away.name, forSegmentAt: 1)
+                
                 if match.home.players.contains(where: { $0.playerName == player.playerName }) {
                     teamSegmentedControl.selectedSegmentIndex = 0
                 } else {
@@ -76,6 +86,12 @@ class EditPlayerViewController: UIViewController {
             titleLabel.text = "ADD PLAYER"
             teamSegmentedControl.isEnabled = true
             teamSegmentedControl.selectedSegmentIndex = 0
+            
+            // Update team names in segmented control for new player
+            if let match = match {
+                teamSegmentedControl.setTitle(match.home.name, forSegmentAt: 0)
+                teamSegmentedControl.setTitle(match.away.name, forSegmentAt: 1)
+            }
         }
     }
     
@@ -83,7 +99,7 @@ class EditPlayerViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func cameraButtonTapped() {
+    @IBAction func cameraButtonTapped(_ sender: UIButton) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let cameraAction = UIAlertAction(title: "Take Photo", style: .default) { [weak self] _ in
@@ -112,7 +128,9 @@ class EditPlayerViewController: UIViewController {
     private func checkCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            showCamera()
+            DispatchQueue.main.async {
+                self.showCamera()
+            }
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 if granted {
@@ -121,21 +139,31 @@ class EditPlayerViewController: UIViewController {
                     }
                 }
             }
-        default:
-            showPermissionAlert()
+        case .denied, .restricted:
+            DispatchQueue.main.async {
+                self.showPermissionAlert()
+            }
+        @unknown default:
+            break
         }
     }
     
     private func showCamera() {
-        let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .camera
-        imagePicker.delegate = self
-        present(imagePicker, animated: true)
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            let imagePicker = UIImagePickerController()
+            imagePicker.sourceType = .camera
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+            present(imagePicker, animated: true)
+        } else {
+            showAlert(message: "Camera is not available on this device")
+        }
     }
     
     private func showImagePicker() {
         var config = PHPickerConfiguration()
         config.filter = .images
+        config.selectionLimit = 1
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = self
         present(picker, animated: true)
@@ -264,10 +292,27 @@ class EditPlayerViewController: UIViewController {
 
 extension EditPlayerViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let image = info[.originalImage] as? UIImage {
-            playerImageView.image = image
-            selectedImage = image
+        picker.dismiss(animated: true)
+        
+        if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
+            // Resize image if needed
+            let maxSize: CGFloat = 1024
+            let scale = min(maxSize / image.size.width, maxSize / image.size.height)
+            let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+            let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            if let resizedImage = resizedImage {
+                playerImageView.image = resizedImage
+                selectedImage = resizedImage
+            }
         }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
 }
@@ -281,9 +326,21 @@ extension EditPlayerViewController: PHPickerViewControllerDelegate {
         if provider.canLoadObject(ofClass: UIImage.self) {
             provider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
                 if let image = image as? UIImage {
+                    // Resize image if needed
+                    let maxSize: CGFloat = 1024
+                    let scale = min(maxSize / image.size.width, maxSize / image.size.height)
+                    let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+                    
+                    UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+                    image.draw(in: CGRect(origin: .zero, size: newSize))
+                    let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+                    UIGraphicsEndImageContext()
+                    
                     DispatchQueue.main.async {
-                        self?.playerImageView.image = image
-                        self?.selectedImage = image
+                        if let resizedImage = resizedImage {
+                            self?.playerImageView.image = resizedImage
+                            self?.selectedImage = resizedImage
+                        }
                     }
                 }
             }

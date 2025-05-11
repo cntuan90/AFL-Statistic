@@ -14,7 +14,7 @@ class TeamManagementViewController: UIViewController {
     private var awayTeamPlayers: [Player] = []
     private var filteredHomePlayers: [Player] = []
     private var filteredAwayPlayers: [Player] = []
-    private var match: Match?
+    var match: Match?
     private let db = Firestore.firestore()
     
     override func viewDidLoad() {
@@ -46,31 +46,18 @@ class TeamManagementViewController: UIViewController {
     }
     
     private func loadMatchData() {
-        // Load match data from Firestore
-        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
-            if let error = error {
-                print("Error loading match data: \(error)")
-                return
-            }
-            
-            guard let documents = snapshot?.documents,
-                  let firstDocument = documents.first,
-                  let match = Match(document: firstDocument) else {
-                return
-            }
-            
-            self?.match = match
-            self?.homeTeamLabel.text = match.home.name
-            self?.awayTeamLabel.text = match.away.name
-            self?.homeTeamPlayers = match.home.players
-            self?.awayTeamPlayers = match.away.players
-            self?.filteredHomePlayers = match.home.players
-            self?.filteredAwayPlayers = match.away.players
-            
-            DispatchQueue.main.async {
-                self?.homeTeamTableView.reloadData()
-                self?.awayTeamTableView.reloadData()
-            }
+        guard let match = match else { return }
+        
+        self.homeTeamLabel.text = match.home.name
+        self.awayTeamLabel.text = match.away.name
+        self.homeTeamPlayers = match.home.players
+        self.awayTeamPlayers = match.away.players
+        self.filteredHomePlayers = match.home.players
+        self.filteredAwayPlayers = match.away.players
+        
+        DispatchQueue.main.async {
+            self.homeTeamTableView.reloadData()
+            self.awayTeamTableView.reloadData()
         }
     }
     
