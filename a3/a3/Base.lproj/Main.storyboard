@@ -144,20 +144,20 @@
                             <constraint firstItem="away-team-search" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="away-search-leading"/>
                             <constraint firstItem="away-team-search" firstAttribute="top" secondItem="away-team-label" secondAttribute="bottom" constant="4" id="away-search-top"/>
                             <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-search" secondAttribute="trailing" constant="16" id="away-search-trailing"/>
-                            <constraint firstItem="away-team-table" firstAttribute="height" constant="200" id="away-table-height"/>
-                            <constraint firstItem="away-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="away-table-leading"/>
-                            <constraint firstItem="away-team-table" firstAttribute="top" secondItem="away-team-search" secondAttribute="bottom" constant="4" id="away-table-top"/>
-                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-table" secondAttribute="trailing" constant="16" id="away-table-trailing"/>
                             <constraint firstItem="home-team-label" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-label-leading"/>
                             <constraint firstItem="home-team-label" firstAttribute="top" secondItem="team-management-safe-area" secondAttribute="top" constant="16" id="home-label-top"/>
                             <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-label" secondAttribute="trailing" constant="16" id="home-label-trailing"/>
                             <constraint firstItem="home-team-search" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-search-leading"/>
                             <constraint firstItem="home-team-search" firstAttribute="top" secondItem="home-team-label" secondAttribute="bottom" constant="4" id="home-search-top"/>
                             <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-search" secondAttribute="trailing" constant="16" id="home-search-trailing"/>
-                            <constraint firstItem="home-team-table" firstAttribute="height" constant="200" id="home-table-height"/>
-                            <constraint firstItem="home-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="home-table-leading"/>
-                            <constraint firstItem="home-team-table" firstAttribute="top" secondItem="home-team-search" secondAttribute="bottom" constant="4" id="home-table-top"/>
-                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-table" secondAttribute="trailing" constant="16" id="home-table-trailing"/>
+                            <constraint firstItem="away-team-table" firstAttribute="height" constant="200" id="team-mgmt-away-table-height"/>
+                            <constraint firstItem="away-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="team-mgmt-away-table-leading"/>
+                            <constraint firstItem="away-team-table" firstAttribute="top" secondItem="away-team-search" secondAttribute="bottom" constant="4" id="team-mgmt-away-table-top"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="away-team-table" secondAttribute="trailing" constant="16" id="team-mgmt-away-table-trailing"/>
+                            <constraint firstItem="home-team-table" firstAttribute="height" constant="200" id="team-mgmt-home-table-height"/>
+                            <constraint firstItem="home-team-table" firstAttribute="leading" secondItem="team-management-safe-area" secondAttribute="leading" constant="16" id="team-mgmt-home-table-leading"/>
+                            <constraint firstItem="home-team-table" firstAttribute="top" secondItem="home-team-search" secondAttribute="bottom" constant="4" id="team-mgmt-home-table-top"/>
+                            <constraint firstItem="team-management-safe-area" firstAttribute="trailing" secondItem="home-team-table" secondAttribute="trailing" constant="16" id="team-mgmt-home-table-trailing"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Team Management" id="team-management-nav-item">
@@ -302,8 +302,8 @@
                                     </label>
                                 </subviews>
                             </stackView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-table-view">
-                                <rect key="frame" x="16" y="103.33333333333331" width="170.66666666666666" height="200"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="home-team-table-view">
+                                <rect key="frame" x="16" y="141.33333333333337" width="170.66666666666666" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="HomePlayerCell" rowHeight="44" id="record-home-player-cell">
@@ -315,13 +315,9 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </prototypes>
-                                <connections>
-                                    <outlet property="dataSource" destination="record-action-vc" id="home-team-table-view-data-source"/>
-                                    <outlet property="delegate" destination="record-action-vc" id="home-team-table-view-delegate"/>
-                                </connections>
                             </tableView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-table-view">
-                                <rect key="frame" x="206.66666666666663" y="103.33333333333331" width="170.33333333333337" height="200"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="away-team-table-view">
+                                <rect key="frame" x="206.66666666666663" y="141.33333333333337" width="170.33333333333337" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="AwayPlayerCell" rowHeight="44" id="record-away-player-cell">
@@ -333,30 +329,24 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </prototypes>
-                                <connections>
-                                    <outlet property="dataSource" destination="record-action-vc" id="away-team-table-view-data-source"/>
-                                    <outlet property="delegate" destination="record-action-vc" id="away-team-table-view-delegate"/>
-                                </connections>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="record-action-safe-area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="away-team-table-view" firstAttribute="height" secondItem="home-team-table-view" secondAttribute="height" id="away-team-table-view-height"/>
-                            <constraint firstItem="away-team-table-view" firstAttribute="leading" secondItem="home-team-table-view" secondAttribute="trailing" constant="20" id="away-team-table-view-leading"/>
-                            <constraint firstItem="away-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="away-team-table-view-top"/>
-                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="away-team-table-view" secondAttribute="trailing" constant="16" id="away-team-table-view-trailing"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="height" constant="200" id="home-team-table-view-height"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="home-team-table-view-leading"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="top" secondItem="top-buttons-stack" secondAttribute="bottom" constant="8" id="home-team-table-view-top"/>
-                            <constraint firstItem="home-team-table-view" firstAttribute="width" secondItem="away-team-table-view" secondAttribute="width" id="home-team-table-view-width"/>
-                            <constraint firstItem="top-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="top-buttons-stack-leading"/>
-                            <constraint firstItem="top-buttons-stack" firstAttribute="top" secondItem="record-action-safe-area" secondAttribute="top" constant="16" id="top-buttons-stack-top"/>
-                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="top-buttons-stack" secondAttribute="trailing" constant="16" id="top-buttons-stack-trailing"/>
+                            <constraint firstItem="away-team-table-view" firstAttribute="height" secondItem="home-team-table-view" secondAttribute="height" id="record-away-table-height"/>
+                            <constraint firstItem="away-team-table-view" firstAttribute="leading" secondItem="home-team-table-view" secondAttribute="trailing" constant="20" id="record-away-table-leading"/>
+                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="away-team-table-view" secondAttribute="trailing" constant="16" id="record-away-table-trailing"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="height" constant="200" id="record-home-table-height"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="record-home-table-leading"/>
+                            <constraint firstItem="home-team-table-view" firstAttribute="width" secondItem="away-team-table-view" secondAttribute="width" id="record-home-table-width"/>
+                            <constraint firstItem="top-buttons-stack" firstAttribute="leading" secondItem="record-action-safe-area" secondAttribute="leading" constant="16" id="record-top-stack-leading"/>
+                            <constraint firstItem="top-buttons-stack" firstAttribute="top" secondItem="record-action-safe-area" secondAttribute="top" constant="16" id="record-top-stack-top"/>
+                            <constraint firstItem="record-action-safe-area" firstAttribute="trailing" secondItem="top-buttons-stack" secondAttribute="trailing" constant="16" id="record-top-stack-trailing"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Record Action" id="record-action-nav-item">
-                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" id="back-button">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="back-button">
                             <connections>
                                 <action selector="backButtonTapped" destination="record-action-vc" id="back-button-action"/>
                             </connections>
@@ -369,7 +359,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="record-action-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1375" y="580"/>
+            <point key="canvasLocation" x="1375" y="561"/>
         </scene>
         <!--History View Controller-->
         <scene sceneID="history-scene">
@@ -384,7 +374,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1547" y="580"/>
+            <point key="canvasLocation" x="2074" y="561"/>
         </scene>
         <!--History Tab View Controller-->
         <scene sceneID="history-tab-scene">
@@ -399,7 +389,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-tab-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-138" y="580"/>
+            <point key="canvasLocation" x="3483" y="561"/>
         </scene>
         <!--Timeline View Controller-->
         <scene sceneID="timeline-scene">
@@ -414,7 +404,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="timeline-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="575" y="580"/>
+            <point key="canvasLocation" x="4196" y="561"/>
         </scene>
         <!--Summary View Controller-->
         <scene sceneID="summary-scene">
@@ -429,11 +419,10 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="summary-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-836" y="580"/>
+            <point key="canvasLocation" x="2784" y="561"/>
         </scene>
     </scenes>
     <resources>
-        <image name="chevron.left" catalog="system" width="97" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -232,10 +232,10 @@ class RecordActionViewController: UIViewController {
         homeTeamNameLabel.translatesAutoresizingMaskIntoConstraints = false
         awayTeamNameLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            homeTeamNameLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 16),
+            homeTeamNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             homeTeamNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
-            awayTeamNameLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 16),
+            awayTeamNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             awayTeamNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
         
@@ -254,12 +254,12 @@ class RecordActionViewController: UIViewController {
         homeTeamTableView.translatesAutoresizingMaskIntoConstraints = false
         awayTeamTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            homeTeamTableView.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 8),
+            homeTeamTableView.topAnchor.constraint(equalTo: startEndQuarterButton.bottomAnchor, constant: 8),
             homeTeamTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             homeTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
             homeTeamTableView.bottomAnchor.constraint(equalTo: kickButton.topAnchor, constant: -16),
             
-            awayTeamTableView.topAnchor.constraint(equalTo: awayTeamScoreLabel.bottomAnchor, constant: 8),
+            awayTeamTableView.topAnchor.constraint(equalTo: endMatchButton.bottomAnchor, constant: 8),
             awayTeamTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             awayTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
             awayTeamTableView.bottomAnchor.constraint(equalTo: markButton.topAnchor, constant: -16)
@@ -270,17 +270,17 @@ class RecordActionViewController: UIViewController {
         viewStatsButton.translatesAutoresizingMaskIntoConstraints = false
         endMatchButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            startEndQuarterButton.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 16),
+            startEndQuarterButton.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 16),
             startEndQuarterButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             startEndQuarterButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3),
             startEndQuarterButton.heightAnchor.constraint(equalToConstant: 80),
             
-            viewStatsButton.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 16),
+            viewStatsButton.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 16),
             viewStatsButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             viewStatsButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3),
             viewStatsButton.heightAnchor.constraint(equalToConstant: 80),
             
-            endMatchButton.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 16),
+            endMatchButton.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 16),
             endMatchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             endMatchButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3),
             endMatchButton.heightAnchor.constraint(equalToConstant: 80)
@@ -347,8 +347,8 @@ class RecordActionViewController: UIViewController {
         }
         
         // Set team names
-        homeTeamText.text = match.home.name
-        awayTeamText.text = match.away.name
+        homeTeamNameLabel.text = match.home.name
+        awayTeamNameLabel.text = match.away.name
         
         // Update button states
         if matchStarted {
