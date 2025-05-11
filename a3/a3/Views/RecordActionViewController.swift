@@ -4,6 +4,8 @@ import FirebaseFirestore
 class RecordActionViewController: UIViewController {
     // MARK: - Properties
     var match: Match?
+    @IBOutlet weak var homeTeamText: UILabel!
+    @IBOutlet weak var awayTeamText: UILabel!
     private var selectedHomePlayerIndex: Int?
     private var selectedAwayPlayerIndex: Int?
     private var selectedTeam: String?
@@ -17,8 +19,7 @@ class RecordActionViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
-        label.text = "00:00:00"
-        label.font = .systemFont(ofSize: 10)
+        label.font = .systemFont(ofSize: 24)
         label.textAlignment = .center
         return label
     }()
@@ -187,7 +188,7 @@ class RecordActionViewController: UIViewController {
     
     // MARK: - Setup Methods
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Add subviews
         view.addSubview(timeLabel)
@@ -345,18 +346,22 @@ class RecordActionViewController: UIViewController {
             print("Player: \(player.playerName), Number: \(player.positionNumber), Has Image: \(player.image != nil)")
         }
         
-        homeTeamNameLabel.text = match.home.name
-        awayTeamNameLabel.text = match.away.name
+        // Set team names
+        homeTeamText.text = match.home.name
+        awayTeamText.text = match.away.name
+        
+        // Update button states
+        if matchStarted {
+            startEndQuarterButton.setTitle("END QUARTER", for: .normal)
+            startTimer()
+        } else {
+            startEndQuarterButton.setTitle("START MATCH", for: .normal)
+        }
         
         currentQuarter = match.currentQuarter
         startTime = match.startTime
         lastAction = match.lastAction
         matchStarted = match.matchStarted
-        
-        if matchStarted {
-            startEndQuarterButton.setTitle("END QUARTER", for: .normal)
-            startTimer()
-        }
         
         calculateScore()
         
