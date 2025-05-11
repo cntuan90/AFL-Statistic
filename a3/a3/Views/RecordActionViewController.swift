@@ -256,12 +256,12 @@ class RecordActionViewController: UIViewController {
             homeTeamTableView.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 8),
             homeTeamTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             homeTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
-            homeTeamTableView.heightAnchor.constraint(equalToConstant: 200),
+            homeTeamTableView.bottomAnchor.constraint(equalTo: kickButton.topAnchor, constant: -16),
             
             awayTeamTableView.topAnchor.constraint(equalTo: awayTeamScoreLabel.bottomAnchor, constant: 8),
             awayTeamTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             awayTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
-            awayTeamTableView.heightAnchor.constraint(equalToConstant: 200)
+            awayTeamTableView.bottomAnchor.constraint(equalTo: markButton.topAnchor, constant: -16)
         ])
         
         // Top buttons
