@@ -113,6 +113,26 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        guard let match = match else { return }
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let editPlayerVC = storyboard.instantiateViewController(withIdentifier: "EditPlayerViewController") as! EditPlayerViewController
+        
+        let selectedPlayer: Player
+        if tableView == homeTeamTableView {
+            selectedPlayer = filteredHomePlayers[indexPath.row]
+        } else {
+            selectedPlayer = filteredAwayPlayers[indexPath.row]
+        }
+        
+        editPlayerVC.match = match
+        editPlayerVC.player = selectedPlayer
+        editPlayerVC.isEditMode = true
+        navigationController?.pushViewController(editPlayerVC, animated: true)
+    }
+    
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let player: Player

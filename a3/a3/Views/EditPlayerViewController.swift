@@ -12,10 +12,13 @@ class EditPlayerViewController: UIViewController {
     @IBOutlet weak var saveButton: UIButton!
     
     var match: Match?
+    var player: Player?
+    var isEditMode: Bool = false
     private var playerIndex: Int?
     private var team: String?
     private var selectedImage: UIImage?
     private let db = Firestore.firestore()
+    private let imagePicker = UIImagePickerController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,51 +49,33 @@ class EditPlayerViewController: UIViewController {
     }
     
     private func loadData() {
-        // Load match data from Firestore
-        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
-            if let error = error {
-                print("Error loading match data: \(error)")
-                return
-            }
+        if isEditMode, let player = player {
+            titleLabel.text = "EDIT PLAYER"
+            playerNameTextField.text = player.playerName
+            positionNumberTextField.text = String(player.positionNumber)
+            teamSegmentedControl.isEnabled = false
             
-            guard let documents = snapshot?.documents,
-                  let firstDocument = documents.first,
-                  let match = Match(document: firstDocument) else {
-                return
-            }
-            
-            self?.match = match
-            
-            // If editing existing player
-            if let playerIndex = self?.playerIndex,
-               let team = self?.team {
-                self?.titleLabel.text = "EDIT PLAYER"
-                self?.teamSegmentedControl.isEnabled = false
-                
-                let player: Player
-                if team == "HOME" {
-                    player = match.home.players[playerIndex]
-                    self?.teamSegmentedControl.selectedSegmentIndex = 0
+            // Set team segment based on which team the player belongs to
+            if let match = match {
+                if match.home.players.contains(where: { $0.playerName == player.playerName }) {
+                    teamSegmentedControl.selectedSegmentIndex = 0
                 } else {
-                    player = match.away.players[playerIndex]
-                    self?.teamSegmentedControl.selectedSegmentIndex = 1
+                    teamSegmentedControl.selectedSegmentIndex = 1
                 }
-                
-                self?.playerNameTextField.text = player.playerName
-                self?.positionNumberTextField.text = String(player.positionNumber)
-                
-                if !player.image.isEmpty {
-                    if let imageData = Data(base64Encoded: player.image),
-                       let image = UIImage(data: imageData) {
-                        self?.playerImageView.image = image
-                        self?.selectedImage = image
-                    }
-                }
-            } else {
-                self?.titleLabel.text = "ADD PLAYER"
-                self?.teamSegmentedControl.isEnabled = true
-                self?.teamSegmentedControl.selectedSegmentIndex = 0
             }
+            
+            // Load player image if exists
+            if !player.image.isEmpty {
+                if let imageData = Data(base64Encoded: player.image),
+                   let image = UIImage(data: imageData) {
+                    playerImageView.image = image
+                    selectedImage = image
+                }
+            }
+        } else {
+            titleLabel.text = "ADD PLAYER"
+            teamSegmentedControl.isEnabled = true
+            teamSegmentedControl.selectedSegmentIndex = 0
         }
     }
     
@@ -177,12 +162,41 @@ class EditPlayerViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    @objc private func saveButtonTapped() {
-        guard let match = match,
-              let playerName = playerNameTextField.text,
-              let positionText = positionNumberTextField.text,
-              let positionNumber = Int(positionText) else {
-            return
+    @IBAction func saveButtonTapped(_ sender: UIButton) {
+        guard let match = match else { return }
+        
+        let playerName = playerNameTextField.text ?? ""
+        let positionText = positionNumberTextField.text ?? ""
+        let positionNumber = Int(positionText) ?? -1
+        let isHomeTeam = teamSegmentedControl.selectedSegmentIndex == 0
+        
+        // Convert image to base64
+        let imageBase64: String
+        if let image = selectedImage,
+           let imageData = image.jpegData(compressionQuality: 0.5) {
+            imageBase64 = imageData.base64EncodedString()
+        } else {
+            imageBase64 = ""
+        }
+        
+        // Check if position number already exists in the team
+        let positionNumberExists: Bool
+        if isHomeTeam {
+            positionNumberExists = match.home.players.contains { player in
+                if isEditMode, let currentPlayer = self.player {
+                    return player.positionNumber == positionNumber && player.playerName != currentPlayer.playerName
+                } else {
+                    return player.positionNumber == positionNumber
+                }
+            }
+        } else {
+            positionNumberExists = match.away.players.contains { player in
+                if isEditMode, let currentPlayer = self.player {
+                    return player.positionNumber == positionNumber && player.playerName != currentPlayer.playerName
+                } else {
+                    return player.positionNumber == positionNumber
+                }
+            }
         }
         
         // Validate input
@@ -196,26 +210,10 @@ class EditPlayerViewController: UIViewController {
             return
         }
         
-        // Check if position number already exists
-        let isHomeTeam = teamSegmentedControl.selectedSegmentIndex == 0
-        let players = isHomeTeam ? match.home.players : match.away.players
-        
-        if let playerIndex = playerIndex {
-            // Editing existing player
-            if players.contains(where: { $0.positionNumber == positionNumber && $0.playerName != players[playerIndex].playerName }) {
-                showAlert(message: "This position number already exists in the team")
-                return
-            }
-        } else {
-            // Adding new player
-            if players.contains(where: { $0.positionNumber == positionNumber }) {
-                showAlert(message: "This position number already exists in the team")
-                return
-            }
+        if positionNumberExists {
+            showAlert(message: "This position number already exists in the team")
+            return
         }
-        
-        // Convert image to base64
-        let imageBase64 = selectedImage?.jpegData(compressionQuality: 0.5)?.base64EncodedString() ?? ""
         
         let newPlayer = Player(
             playerName: playerName,
@@ -224,19 +222,21 @@ class EditPlayerViewController: UIViewController {
         )
         
         // Update Firestore
-        if let playerIndex = playerIndex {
+        if isEditMode {
             // Update existing player
             var players = isHomeTeam ? match.home.players : match.away.players
-            players[playerIndex] = newPlayer
-            
-            db.collection("matches").document(match.id!).updateData([
-                isHomeTeam ? "home.players" : "away.players": players.map { $0.dictionary }
-            ]) { [weak self] error in
-                if let error = error {
-                    print("Error updating player: \(error)")
-                    return
+            if let index = players.firstIndex(where: { $0.playerName == player?.playerName }) {
+                players[index] = newPlayer
+                
+                db.collection("matches").document(match.id!).updateData([
+                    isHomeTeam ? "home.players" : "away.players": players.map { $0.dictionary }
+                ]) { [weak self] error in
+                    if let error = error {
+                        print("Error updating player: \(error)")
+                        return
+                    }
+                    self?.navigationController?.popViewController(animated: true)
                 }
-                self?.navigationController?.popViewController(animated: true)
             }
         } else {
             // Add new player
