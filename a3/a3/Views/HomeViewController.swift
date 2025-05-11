@@ -1,12 +1,14 @@
 import UIKit
 import FirebaseFirestore
 
+
 class HomeViewController: UIViewController {
+    var matches: [Match] = []
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addMatchButton: UIBarButtonItem!
     @IBOutlet weak var historyButton: UIBarButtonItem!
     
-    private var matches: [Match] = []
+//    var matches: [Match] = []
     private let db = Firestore.firestore()
     private var listener: ListenerRegistration?
     
@@ -76,7 +78,12 @@ class HomeViewController: UIViewController {
                 
                 self?.matches = documents.compactMap { document in
                     print("Processing document: \(document.documentID)")
-                    return Match(document: document)
+                    if let match = Match(document: document) {
+                        print("Home team players: \(match.home.players.count)")
+                        print("Away team players: \(match.away.players.count)")
+                        return match
+                    }
+                    return nil
                 }
                 
                 print("Successfully loaded \(self?.matches.count ?? 0) matches")
@@ -119,6 +126,10 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let recordActionVC = storyboard.instantiateViewController(withIdentifier: "RecordActionViewController") as! RecordActionViewController
+        
+        print("Loading Home:")
+        print("Home: \(match.home.players.count)")
+        print("Away: \(match.away.players.count)")
         recordActionVC.match = match
         navigationController?.pushViewController(recordActionVC, animated: true)
     }

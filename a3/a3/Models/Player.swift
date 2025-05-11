@@ -28,10 +28,10 @@ struct Player: Codable {
     static func from(dictionary: [String: Any]) -> Player? {
         guard let playerName = dictionary["playerName"] as? String,
               let positionNumber = dictionary["positionNumber"] as? Int,
-              let image = dictionary["image"] as? String,
-              let injuryStatus = dictionary["injuryStatus"] as? Bool else {
+              let image = dictionary["image"] as? String else {
             return nil
         }
+        let injuryStatus = dictionary["injuryStatus"] as? Bool ?? false
         return Player(id: dictionary["id"] as? String,
                      playerName: playerName,
                      positionNumber: positionNumber,

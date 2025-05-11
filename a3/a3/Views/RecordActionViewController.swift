@@ -57,7 +57,7 @@ class RecordActionViewController: UIViewController {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "PlayerCell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "HomePlayerCell")
         tableView.layer.borderWidth = 1
         tableView.layer.borderColor = UIColor.black.cgColor
         return tableView
@@ -67,7 +67,7 @@ class RecordActionViewController: UIViewController {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "PlayerCell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "AwayPlayerCell")
         tableView.layer.borderWidth = 1
         tableView.layer.borderColor = UIColor.black.cgColor
         return tableView
@@ -207,6 +207,14 @@ class RecordActionViewController: UIViewController {
         view.addSubview(goalButton)
         view.addSubview(behindButton)
         
+        // Configure table views
+        homeTeamTableView.translatesAutoresizingMaskIntoConstraints = false
+        awayTeamTableView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Register cells
+        homeTeamTableView.register(UITableViewCell.self, forCellReuseIdentifier: "HomePlayerCell")
+        awayTeamTableView.register(UITableViewCell.self, forCellReuseIdentifier: "AwayPlayerCell")
+        
         // Setup constraints
         setupConstraints()
     }
@@ -215,6 +223,7 @@ class RecordActionViewController: UIViewController {
         // Time label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            timeLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             timeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
@@ -247,12 +256,12 @@ class RecordActionViewController: UIViewController {
             homeTeamTableView.topAnchor.constraint(equalTo: homeTeamScoreLabel.bottomAnchor, constant: 8),
             homeTeamTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             homeTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
-            homeTeamTableView.bottomAnchor.constraint(equalTo: kickButton.topAnchor, constant: -16),
+            homeTeamTableView.heightAnchor.constraint(equalToConstant: 200),
             
             awayTeamTableView.topAnchor.constraint(equalTo: awayTeamScoreLabel.bottomAnchor, constant: 8),
             awayTeamTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             awayTeamTableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45),
-            awayTeamTableView.bottomAnchor.constraint(equalTo: kickButton.topAnchor, constant: -16)
+            awayTeamTableView.heightAnchor.constraint(equalToConstant: 200)
         ])
         
         // Top buttons
@@ -320,6 +329,22 @@ class RecordActionViewController: UIViewController {
     private func loadMatchData() {
         guard let match = match else { return }
         
+        print("Loading match data:")
+        print("Home team players count: \(match.home.players.count)")
+        print("Away team players count: \(match.away.players.count)")
+        
+        // Debug print for home team players
+        print("\nHome Team Players:")
+        match.home.players.forEach { player in
+            print("Player: \(player.playerName), Number: \(player.positionNumber), Has Image: \(player.image != nil)")
+        }
+        
+        // Debug print for away team players
+        print("\nAway Team Players:")
+        match.away.players.forEach { player in
+            print("Player: \(player.playerName), Number: \(player.positionNumber), Has Image: \(player.image != nil)")
+        }
+        
         homeTeamNameLabel.text = match.home.name
         awayTeamNameLabel.text = match.away.name
         
@@ -334,8 +359,18 @@ class RecordActionViewController: UIViewController {
         }
         
         calculateScore()
-        homeTeamTableView.reloadData()
-        awayTeamTableView.reloadData()
+        
+        // Ensure table views are properly configured
+        homeTeamTableView.delegate = self
+        homeTeamTableView.dataSource = self
+        awayTeamTableView.delegate = self
+        awayTeamTableView.dataSource = self
+        
+        // Reload table views
+        DispatchQueue.main.async { [weak self] in
+            self?.homeTeamTableView.reloadData()
+            self?.awayTeamTableView.reloadData()
+        }
     }
     
     private func startTimer() {
@@ -628,29 +663,40 @@ extension RecordActionViewController: UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == homeTeamTableView {
             return match?.home.players.count ?? 0
-        } else {
+        } else if tableView == awayTeamTableView {
             return match?.away.players.count ?? 0
         }
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PlayerCell", for: indexPath)
+        let cell: UITableViewCell
         
-        let player: Player
         if tableView == homeTeamTableView {
-            player = match!.home.players[indexPath.row]
-            cell.backgroundColor = selectedHomePlayerIndex == indexPath.row ? .lightGray : .white
+            cell = tableView.dequeueReusableCell(withIdentifier: "HomePlayerCell", for: indexPath)
+            if let player = match?.home.players[indexPath.row] {
+                var content = cell.defaultContentConfiguration()
+                content.text = "\(player.playerName) (\(player.positionNumber))"
+                if player.injuryStatus {
+                    content.textProperties.color = .red
+                }
+                cell.contentConfiguration = content
+                cell.backgroundColor = selectedHomePlayerIndex == indexPath.row ? .lightGray : .white
+            }
+        } else if tableView == awayTeamTableView {
+            cell = tableView.dequeueReusableCell(withIdentifier: "AwayPlayerCell", for: indexPath)
+            if let player = match?.away.players[indexPath.row] {
+                var content = cell.defaultContentConfiguration()
+                content.text = "\(player.playerName) (\(player.positionNumber))"
+                if player.injuryStatus {
+                    content.textProperties.color = .red
+                }
+                cell.contentConfiguration = content
+                cell.backgroundColor = selectedAwayPlayerIndex == indexPath.row ? .lightGray : .white
+            }
         } else {
-            player = match!.away.players[indexPath.row]
-            cell.backgroundColor = selectedAwayPlayerIndex == indexPath.row ? .lightGray : .white
+            cell = UITableViewCell()
         }
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = "\(player.playerName) (\(player.positionNumber))"
-        if player.injuryStatus {
-            content.textProperties.color = .red
-        }
-        cell.contentConfiguration = content
         
         return cell
     }
@@ -660,13 +706,14 @@ extension RecordActionViewController: UITableViewDelegate, UITableViewDataSource
             selectedHomePlayerIndex = indexPath.row
             selectedAwayPlayerIndex = nil
             selectedTeam = "HOME"
-        } else {
+            homeTeamTableView.reloadData()
+            awayTeamTableView.reloadData()
+        } else if tableView == awayTeamTableView {
             selectedHomePlayerIndex = nil
             selectedAwayPlayerIndex = indexPath.row
             selectedTeam = "AWAY"
+            homeTeamTableView.reloadData()
+            awayTeamTableView.reloadData()
         }
-        
-        homeTeamTableView.reloadData()
-        awayTeamTableView.reloadData()
     }
 } 

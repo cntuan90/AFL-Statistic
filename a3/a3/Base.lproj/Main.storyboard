@@ -308,7 +308,7 @@
                                 <rect key="frame" x="16" y="113" width="170.66666666666666" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="record-home-player-cell">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="HomePlayerCell" rowHeight="44" id="record-home-player-cell">
                                         <rect key="frame" x="0.0" y="50" width="170.66666666666666" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="record-home-player-cell" id="record-home-player-content-view">
@@ -326,7 +326,7 @@
                                 <rect key="frame" x="206.66666666666663" y="113" width="170.33333333333337" height="200"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlayerCell" rowHeight="44" id="record-away-player-cell">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="AwayPlayerCell" rowHeight="44" id="record-away-player-cell">
                                         <rect key="frame" x="0.0" y="50" width="170.33333333333337" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="record-away-player-cell" id="record-away-player-content-view">

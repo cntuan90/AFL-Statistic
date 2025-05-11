@@ -18,12 +18,12 @@ struct Match: Codable {
         var players: [Player]
         var actions: [Action] = []
         
-        var dictionary: [String: Any] {
-            return [
-                "name": name,
-                "players": players.map { $0.dictionary }
-            ]
-        }
+//        var dictionary: [String: Any] {
+//            return [
+//                "name": name,
+//                "players": players.map { $0.dictionary }
+//            ]
+//        }
     }
     
     struct Action: Codable {
