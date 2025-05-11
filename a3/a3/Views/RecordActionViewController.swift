@@ -427,6 +427,13 @@ class RecordActionViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    @objc private func teamManagementButtonTapped(_ sender: UIBarButtonItem) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as? TeamManagementViewController {
+            navigationController?.pushViewController(teamManagementVC, animated: true)
+        }
+    }
+    
     @objc private func startEndQuarterButtonTapped() {
         if matchStarted {
             endQuarter()
