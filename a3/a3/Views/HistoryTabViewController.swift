@@ -46,7 +46,7 @@ class HistoryTabViewController: UIViewController {
     
     private func setupFirestoreListener() {
         listener = db.collection("matches")
-            .whereField("status", isEqualTo: "Completed")
+            .whereField("status", isEqualTo: "Ended")
             .addSnapshotListener { [weak self] snapshot, error in
                 if let error = error {
                     print("Error listening to Firestore updates: \(error)")

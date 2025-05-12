@@ -27,11 +27,11 @@ class HomeViewController: UIViewController {
     @objc private func showMenu() {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as! TeamManagementViewController
-            self?.navigationController?.pushViewController(teamManagementVC, animated: true)
-        }
+//        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as! TeamManagementViewController
+//            self?.navigationController?.pushViewController(teamManagementVC, animated: true)
+//        }
         
         let historyAction = UIAlertAction(title: "History", style: .default) { [weak self] _ in
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -41,7 +41,7 @@ class HomeViewController: UIViewController {
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
-        alertController.addAction(teamManagementAction)
+//        alertController.addAction(teamManagementAction)
         alertController.addAction(historyAction)
         alertController.addAction(cancelAction)
         
@@ -62,7 +62,7 @@ class HomeViewController: UIViewController {
     private func setupFirestoreListener() {
         print("Setting up Firestore listener...")
         listener = db.collection("matches")
-            .whereField("status", isNotEqualTo: "Completed")
+            .whereField("status", isNotEqualTo: "Ended")
             .addSnapshotListener { [weak self] snapshot, error in
                 if let error = error {
                     print("Error listening to Firestore updates: \(error)")

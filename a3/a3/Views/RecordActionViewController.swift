@@ -4,8 +4,6 @@ import FirebaseFirestore
 class RecordActionViewController: UIViewController {
     // MARK: - Properties
     var match: Match?
-    @IBOutlet weak var homeTeamText: UILabel!
-    @IBOutlet weak var awayTeamText: UILabel!
     private var selectedHomePlayerIndex: Int?
     private var selectedAwayPlayerIndex: Int?
     private var selectedTeam: String?
@@ -549,7 +547,7 @@ class RecordActionViewController: UIViewController {
         
         // Create a new match instance with updated values
         var updatedMatch = match
-        updatedMatch.status = "Completed"
+        updatedMatch.status = "Ended"
         updatedMatch.winner = winner
 
         // Update the match property
@@ -603,7 +601,7 @@ class RecordActionViewController: UIViewController {
         
         // Create a new match instance with updated teams
         var updatedMatch = match
-        updatedMatch.status = "Completed"
+        updatedMatch.status = "Ended"
         
         // Update the match property
         self.match = updatedMatch
