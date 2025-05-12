@@ -509,7 +509,11 @@ class StatsComparisonViewController: UIViewController {
         
         // Filter by quarter if needed
         if selectedQuarter != "All" {
-            let quarter = Int(selectedQuarter.replacingOccurrences(of: "Q", with: "")) ?? 0
+        let quarter = Int(selectedQuarter.replacingOccurrences(of: "Q", with: "")) ?? 0
+        if selectedQuarter == "Final" {
+            quarter = 4
+        }
+
             homeActions = homeActions.filter { $0.actionQuarter == quarter }
             awayActions = awayActions.filter { $0.actionQuarter == quarter }
         }
@@ -577,12 +581,12 @@ class StatsComparisonViewController: UIViewController {
         awayStat3Label.text = String(format: "%d . %d (%d)", awayQ3Goals, awayQ3Behinds, awayQ3Total)
         
         // Final (cumulative)
-        let homeFinalGoals = homeActions.filter { $0.action == "goal" }.count
-        let homeFinalBehinds = homeActions.filter { $0.action == "behind" }.count
+        let homeFinalGoals = homeActions.filter { $0.action == "goal" && $0.actionQuarter <= 4 }.count
+        let homeFinalBehinds = homeActions.filter { $0.action == "behind" && $0.actionQuarter <= 4 }.count
         let homeFinalTotal = homeFinalGoals * 6 + homeFinalBehinds
         
-        let awayFinalGoals = awayActions.filter { $0.action == "goal" }.count
-        let awayFinalBehinds = awayActions.filter { $0.action == "behind" }.count
+        let awayFinalGoals = awayActions.filter { $0.action == "goal" && $0.actionQuarter <= 4 }.count
+        let awayFinalBehinds = awayActions.filter { $0.action == "behind" && $0.actionQuarter <= 4 }.count
         let awayFinalTotal = awayFinalGoals * 6 + awayFinalBehinds
         
         homeStat4Label.text = String(format: "%d . %d (%d)", homeFinalGoals, homeFinalBehinds, homeFinalTotal)
