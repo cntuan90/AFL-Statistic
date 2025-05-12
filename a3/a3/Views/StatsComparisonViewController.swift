@@ -509,7 +509,7 @@ class StatsComparisonViewController: UIViewController {
         
         // Filter by quarter if needed
         if selectedQuarter != "All" {
-        let quarter = Int(selectedQuarter.replacingOccurrences(of: "Q", with: "")) ?? 0
+            var quarter = Int(selectedQuarter.replacingOccurrences(of: "Q", with: "")) ?? 0
         if selectedQuarter == "Final" {
             quarter = 4
         }
