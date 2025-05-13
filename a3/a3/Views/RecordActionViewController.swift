@@ -15,6 +15,13 @@ class RecordActionViewController: UIViewController {
     private let db = Firestore.firestore()
     
     // MARK: - UI Elements
+    private lazy var quarterLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 24)
+        label.textAlignment = .center
+        return label
+    }()
+    
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 24)
@@ -178,10 +185,17 @@ class RecordActionViewController: UIViewController {
         loadMatchData()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if matchStarted {
+            startTimer()
+        }
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        timer?.invalidate()
-        timer = nil
+//        timer?.invalidate()
+//        timer = nil
     }
     
     // MARK: - Setup Methods
@@ -191,6 +205,7 @@ class RecordActionViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         
         // Add subviews
+        view.addSubview(quarterLabel)
         view.addSubview(timeLabel)
         view.addSubview(homeTeamNameLabel)
         view.addSubview(awayTeamNameLabel)
@@ -221,10 +236,17 @@ class RecordActionViewController: UIViewController {
     }
     
     private func setupConstraints() {
+        // Quarter label
+        quarterLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            quarterLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            quarterLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
         // Time label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            timeLabel.topAnchor.constraint(equalTo: quarterLabel.bottomAnchor, constant: 8),
             timeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
@@ -329,39 +351,29 @@ class RecordActionViewController: UIViewController {
     // MARK: - Data Methods
     private func loadMatchData() {
         guard let match = match else { return }
-        
-        print("Loading match data:")
-        print("Home team players count: \(match.home.players.count)")
-        print("Away team players count: \(match.away.players.count)")
-        
-        // Debug print for home team players
-        print("\nHome Team Players:")
-        match.home.players.forEach { player in
-            print("Player: \(player.playerName), Number: \(player.positionNumber), Has Image: \(player.image != nil)")
-        }
-        
-        // Debug print for away team players
-        print("\nAway Team Players:")
-        match.away.players.forEach { player in
-            print("Player: \(player.playerName), Number: \(player.positionNumber), Has Image: \(player.image != nil)")
-        }
+        matchStarted = match.matchStarted
+        currentQuarter = match.currentQuarter
+        startTime = match.startTime
+        lastAction = match.lastAction
         
         // Set team names
         homeTeamNameLabel.text = match.home.name
         awayTeamNameLabel.text = match.away.name
         
-        // Update button states
+        // Update quarter and time labels
+        if currentQuarter <= 3 {
+            quarterLabel.text = "Q\(currentQuarter)"
+        } else {
+            quarterLabel.text = "Final"
+        }
+        
         if matchStarted {
             startEndQuarterButton.setTitle("END QUARTER", for: .normal)
             startTimer()
         } else {
-            startEndQuarterButton.setTitle("START MATCH", for: .normal)
+            startEndQuarterButton.setTitle("START QUARTER", for: .normal)
+            timeLabel.text = "00:00:00"
         }
-        
-        currentQuarter = match.currentQuarter
-        startTime = match.startTime
-        lastAction = match.lastAction
-        matchStarted = match.matchStarted
         
         calculateScore()
         
@@ -383,6 +395,8 @@ class RecordActionViewController: UIViewController {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateTime()
         }
+        
+        RunLoop.current.add(timer!, forMode: .common)
     }
     
     private func updateTime() {
@@ -391,6 +405,13 @@ class RecordActionViewController: UIViewController {
         let minutes = (Int(elapsedTime) % 3600) / 60
         let seconds = Int(elapsedTime) % 60
         timeLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        
+        // Update quarter label
+        if currentQuarter <= 3 {
+            quarterLabel.text = "Q\(currentQuarter)"
+        } else {
+            quarterLabel.text = "Final"
+        }
     }
     
     private func calculateScore() {
@@ -515,14 +536,27 @@ class RecordActionViewController: UIViewController {
     private func endQuarter() {
         guard let match = match else { return }
         
-        if currentQuarter < 4 {
-            currentQuarter += 1
-            startTime = Date().timeIntervalSince1970
-            startTimer()
-        } else {
+        if currentQuarter > 3 {
             endMatch()
+            return
         }
         
+        currentQuarter += 1
+        startTime = Date().timeIntervalSince1970
+        startTimer()
+        matchStarted = false
+        timer?.invalidate()
+        timer = nil
+        timeLabel.text = "00:00:00"
+        startEndQuarterButton.setTitle("START QUARTER", for: .normal)
+        
+        // Update quarter label
+        if currentQuarter == 4 {
+            quarterLabel.text = "Final"
+        } else {
+            quarterLabel.text = "Q\(currentQuarter)"
+        }
+  
         updateMatchData()
     }
     
@@ -532,6 +566,8 @@ class RecordActionViewController: UIViewController {
         timer?.invalidate()
         timer = nil
         matchStarted = false
+        quarterLabel.text = "Final"
+        startEndQuarterButton.setTitle("START QUARTER", for: .normal)
         
         // Calculate final scores and determine winner
         let homeActions = match.home.actions
