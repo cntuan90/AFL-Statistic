@@ -349,11 +349,6 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Record Action" id="record-action-nav-item">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="back-button">
-                            <connections>
-                                <action selector="backButtonTapped" destination="record-action-vc" id="back-button-action"/>
-                            </connections>
-                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="edit" id="team-management-button">
                             <connections>
                                 <action selector="teamManagementButtonTapped:" destination="record-action-vc" id="team-management-button-action"/>

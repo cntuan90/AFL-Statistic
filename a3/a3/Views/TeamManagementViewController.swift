@@ -51,18 +51,62 @@ class TeamManagementViewController: UIViewController {
     }
     
     private func loadMatchData() {
-        guard let match = match else { return }
+        guard let match = match, let matchId = match.id else { return }
+        
+        // Fetch fresh data from Firestore
+        db.collection("matches").document(matchId).getDocument { [weak self] (document, error) in
+            if let error = error {
+                print("Error fetching match data: \(error)")
+                return
+            }
             
-        self.homeTeamLabel.text = match.home.name
-        self.awayTeamLabel.text = match.away.name
-        self.homeTeamPlayers = match.home.players
-        self.awayTeamPlayers = match.away.players
-        self.filteredHomePlayers = match.home.players
-        self.filteredAwayPlayers = match.away.players
+            guard let document = document,
+                  let data = document.data(),
+                  let homeData = data["home"] as? [String: Any],
+                  let awayData = data["away"] as? [String: Any],
+                  let homePlayersData = homeData["players"] as? [[String: Any]],
+                  let awayPlayersData = awayData["players"] as? [[String: Any]] else {
+                return
+            }
+            
+            // Convert Firestore data to Player objects
+            let homePlayers = homePlayersData.compactMap { playerData -> Player? in
+                guard let playerName = playerData["playerName"] as? String,
+                      let positionNumber = playerData["positionNumber"] as? Int else {
+                    return nil
+                }
+                return Player(
+                    playerName: playerName,
+                    positionNumber: positionNumber,
+                    image: playerData["image"] as? String ?? "",
+                    injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                )
+            }
+            
+            let awayPlayers = awayPlayersData.compactMap { playerData -> Player? in
+                guard let playerName = playerData["playerName"] as? String,
+                      let positionNumber = playerData["positionNumber"] as? Int else {
+                    return nil
+                }
+                return Player(
+                    playerName: playerName,
+                    positionNumber: positionNumber,
+                    image: playerData["image"] as? String ?? "",
+                    injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                )
+            }
             
             DispatchQueue.main.async {
-            self.homeTeamTableView.reloadData()
-            self.awayTeamTableView.reloadData()
+                self?.homeTeamLabel.text = match.home.name
+                self?.awayTeamLabel.text = match.away.name
+                self?.homeTeamPlayers = homePlayers
+                self?.awayTeamPlayers = awayPlayers
+                self?.filteredHomePlayers = homePlayers
+                self?.filteredAwayPlayers = awayPlayers
+                
+                self?.homeTeamTableView.reloadData()
+                self?.awayTeamTableView.reloadData()
+            }
         }
     }
     
@@ -168,6 +212,7 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
                     
                     DispatchQueue.main.async {
                         tableView.deleteRows(at: [indexPath], with: .fade)
+                        self?.showToast(message: "Delete \(player.playerName) successful!", type: .success)
                     }
                 }
             }

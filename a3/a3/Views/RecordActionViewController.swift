@@ -74,8 +74,8 @@ class RecordActionViewController: UIViewController {
     
     private lazy var startEndQuarterButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("START MATCH", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 19)
+        button.setTitle("START QUARTER", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
         button.backgroundColor = UIColor(red: 0.2, green: 0.51, blue: 0.74, alpha: 1.0)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -86,7 +86,7 @@ class RecordActionViewController: UIViewController {
     private lazy var viewStatsButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("VIEW STATS", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 19)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
         button.backgroundColor = UIColor(red: 0.2, green: 0.51, blue: 0.74, alpha: 1.0)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -97,7 +97,7 @@ class RecordActionViewController: UIViewController {
     private lazy var endMatchButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("END MATCH", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 19)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
         button.backgroundColor = UIColor(red: 0.2, green: 0.51, blue: 0.74, alpha: 1.0)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -187,6 +187,8 @@ class RecordActionViewController: UIViewController {
     // MARK: - Setup Methods
     private func setupUI() {
         view.backgroundColor = .systemBackground
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         
         // Add subviews
         view.addSubview(timeLabel)
