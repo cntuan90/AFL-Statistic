@@ -131,7 +131,7 @@ class AddMatchViewController: UIViewController {
               let awayTeamName = awayTeamTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !homeTeamName.isEmpty,
               !awayTeamName.isEmpty else {
-            showAlert(message: "Please enter both team names")
+            showToast(message: "Please enter both team names", type: .warning)
             return
         }
         
@@ -223,17 +223,16 @@ class AddMatchViewController: UIViewController {
         // Add to Firestore
         db.collection("matches").document(matchID).setData(matchData) { [weak self] error in
             if let error = error {
-                self?.showAlert(message: "Error adding match: \(error.localizedDescription)")
+                self?.showToast(message: "Error adding match: \(error.localizedDescription)", type: .error)
             } else {
-                self?.showAlert(message: "Match added successfully") { _ in
+                self?.showToast(message: "Match added successfully", type: .success)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     self?.dismiss(animated: true)
                 }
             }
         }
     }
 
-
-    
     private func showAlert(message: String, completion: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: completion))

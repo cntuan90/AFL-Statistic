@@ -364,14 +364,14 @@ class StatsComparisonViewController: UIViewController {
             homeTeamTableView.topAnchor.constraint(equalTo: homeTeamTableLabel.bottomAnchor, constant: 8),
             homeTeamTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             homeTeamTableView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.45),
-            homeTeamTableView.heightAnchor.constraint(equalToConstant: 300),
+            homeTeamTableView.heightAnchor.constraint(equalToConstant: 400),
             homeTeamTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             // Away team table
             awayTeamTableView.topAnchor.constraint(equalTo: awayTeamTableLabel.bottomAnchor, constant: 8),
             awayTeamTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             awayTeamTableView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.45),
-            awayTeamTableView.heightAnchor.constraint(equalToConstant: 300),
+            awayTeamTableView.heightAnchor.constraint(equalToConstant: 400),
             awayTeamTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }

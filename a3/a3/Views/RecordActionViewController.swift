@@ -469,7 +469,7 @@ class RecordActionViewController: UIViewController {
     
     @objc private func goalButtonTapped() {
         guard let selectedPlayer = getSelectedPlayer() else {
-            showAlert(message: "Please select a player to record the action")
+            showToast(message: "Please select a player to record the action", type: .warning)
             return
         }
         
@@ -479,13 +479,13 @@ class RecordActionViewController: UIViewController {
            lastAction.actionTeam == selectedTeam {
             recordAction("goal")
         } else {
-            showAlert(message: "Goal can only be recorded after a Kick with a same player in a same team!")
+            showToast(message: "Goal can only be recorded after a Kick with a same player in a same team!", type: .warning)
         }
     }
     
     @objc private func behindButtonTapped() {
         guard let selectedPlayer = getSelectedPlayer() else {
-            showAlert(message: "Please select a player to record the action")
+            showToast(message: "Please select a player to record the action", type: .warning)
             return
         }
         
@@ -495,7 +495,7 @@ class RecordActionViewController: UIViewController {
            lastAction.actionTeam == selectedTeam {
             recordAction("behind")
         } else {
-            showAlert(message: "Behind can only be recorded after a Kick or a Handball with a same player in a same team!")
+            showToast(message: "Behind can only be recorded after a Kick or a Handball with a same player in a same team!", type: .warning)
         }
     }
     
@@ -561,17 +561,17 @@ class RecordActionViewController: UIViewController {
         guard var match = match else { return }
         
         if !matchStarted {
-            showAlert(message: "Please start the match before recording actions")
+            showToast(message: "Please start the match before recording actions", type: .warning)
             return
         }
         
         guard let selectedPlayer = getSelectedPlayer() else {
-            showAlert(message: "Please select a player to record the action")
+            showToast(message: "Please select a player to record the action", type: .warning)
             return
         }
         
         if selectedPlayer.injuryStatus {
-            showAlert(message: "\(selectedPlayer.playerName) is injured, action cannot be recorded")
+            showToast(message: "\(selectedPlayer.playerName) is injured, action cannot be recorded", type: .warning)
             return
         }
         
@@ -610,7 +610,7 @@ class RecordActionViewController: UIViewController {
         updateMatchData()
         calculateScore()
         
-        showAlert(message: "\(actionType.capitalized) action for \(selectedPlayer.playerName) (\(selectedPlayer.positionNumber)) recorded successfully!")
+        showToast(message: "\(actionType.capitalized) action for \(selectedPlayer.playerName) (\(selectedPlayer.positionNumber)) recorded successfully!", type: .success)
     }
     
     private func getSelectedPlayer() -> Player? {
@@ -659,15 +659,9 @@ class RecordActionViewController: UIViewController {
         
         db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in
             if let error = error {
-                self?.showAlert(message: "Error updating match data: \(error.localizedDescription)")
+                self?.showToast(message: "Error updating match data: \(error.localizedDescription)", type: .error)
             }
         }
-    }
-    
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
     }
 }
 

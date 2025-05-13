@@ -190,55 +190,55 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ADD PLAYER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="title-label">
-                                <rect key="frame" x="16" y="59" width="361" height="21"/>
+                                <rect key="frame" x="16" y="75" width="361" height="21"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Player Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="player-name-label">
-                                <rect key="frame" x="16" y="88" width="361" height="21"/>
+                                <rect key="frame" x="16" y="104" width="361" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="player-name-textfield">
-                                <rect key="frame" x="16" y="104" width="361" height="34"/>
+                                <rect key="frame" x="16" y="133" width="361" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Position Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="position-number-label">
-                                <rect key="frame" x="16" y="146" width="361" height="21"/>
+                                <rect key="frame" x="16" y="175" width="361" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="position-number-textfield">
-                                <rect key="frame" x="16" y="175" width="361" height="34"/>
+                                <rect key="frame" x="16" y="204" width="361" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
                             </textField>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="team-segmented-control">
-                                <rect key="frame" x="16" y="217" width="361" height="32"/>
+                                <rect key="frame" x="16" y="246" width="361" height="32"/>
                                 <segments>
                                     <segment title="Home"/>
                                     <segment title="Away"/>
                                 </segments>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="camera-button">
-                                <rect key="frame" x="16" y="257" width="361" height="30"/>
+                                <rect key="frame" x="16" y="285" width="361" height="30"/>
                                 <state key="normal" title="Take Photo"/>
                                 <connections>
                                     <action selector="cameraButtonTapped:" destination="edit-player-vc" eventType="touchUpInside" id="camera-button-action"/>
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="player-image">
-                                <rect key="frame" x="16" y="295" width="361" height="200"/>
+                                <rect key="frame" x="16" y="323" width="361" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="player-image-height"/>
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="save-button">
-                                <rect key="frame" x="16" y="503" width="361" height="30"/>
+                                <rect key="frame" x="16" y="531" width="361" height="30"/>
                                 <state key="normal" title="Save"/>
                                 <connections>
                                     <action selector="saveButtonTapped:" destination="edit-player-vc" eventType="touchUpInside" id="save-button-action"/>
@@ -248,9 +248,12 @@
                         <viewLayoutGuide key="safeArea" id="edit-player-safe-area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="title-label" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="title-label-leading"/>
-                            <constraint firstItem="title-label" firstAttribute="top" secondItem="edit-player-safe-area" secondAttribute="top" constant="16" id="title-label-top"/>
-                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="title-label" secondAttribute="trailing" constant="16" id="title-label-trailing"/>
+                            <constraint firstItem="camera-button" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="camera-button-leading"/>
+                            <constraint firstItem="camera-button" firstAttribute="top" secondItem="team-segmented-control" secondAttribute="bottom" constant="8" id="camera-button-top"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="camera-button" secondAttribute="trailing" constant="16" id="camera-button-trailing"/>
+                            <constraint firstItem="player-image" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="player-image-leading"/>
+                            <constraint firstItem="player-image" firstAttribute="top" secondItem="camera-button" secondAttribute="bottom" constant="8" id="player-image-top"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="player-image" secondAttribute="trailing" constant="16" id="player-image-trailing"/>
                             <constraint firstItem="player-name-label" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="player-name-label-leading"/>
                             <constraint firstItem="player-name-label" firstAttribute="top" secondItem="title-label" secondAttribute="bottom" constant="8" id="player-name-label-top"/>
                             <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="player-name-label" secondAttribute="trailing" constant="16" id="player-name-label-trailing"/>
@@ -269,12 +272,9 @@
                             <constraint firstItem="team-segmented-control" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="team-segmented-control-leading"/>
                             <constraint firstItem="team-segmented-control" firstAttribute="top" secondItem="position-number-textfield" secondAttribute="bottom" constant="8" id="team-segmented-control-top"/>
                             <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="team-segmented-control" secondAttribute="trailing" constant="16" id="team-segmented-control-trailing"/>
-                            <constraint firstItem="camera-button" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="camera-button-leading"/>
-                            <constraint firstItem="camera-button" firstAttribute="top" secondItem="team-segmented-control" secondAttribute="bottom" constant="8" id="camera-button-top"/>
-                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="camera-button" secondAttribute="trailing" constant="16" id="camera-button-trailing"/>
-                            <constraint firstItem="player-image" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="player-image-leading"/>
-                            <constraint firstItem="player-image" firstAttribute="top" secondItem="camera-button" secondAttribute="bottom" constant="8" id="player-image-top"/>
-                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="player-image" secondAttribute="trailing" constant="16" id="player-image-trailing"/>
+                            <constraint firstItem="title-label" firstAttribute="leading" secondItem="edit-player-safe-area" secondAttribute="leading" constant="16" id="title-label-leading"/>
+                            <constraint firstItem="title-label" firstAttribute="top" secondItem="edit-player-safe-area" secondAttribute="top" constant="16" id="title-label-top"/>
+                            <constraint firstItem="edit-player-safe-area" firstAttribute="trailing" secondItem="title-label" secondAttribute="trailing" constant="16" id="title-label-trailing"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Edit Player" id="edit-player-nav-item">
@@ -363,7 +363,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="record-action-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1375" y="561"/>
+            <point key="canvasLocation" x="2827" y="-130"/>
         </scene>
         <!--History View Controller-->
         <scene sceneID="history-scene">
@@ -378,7 +378,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2074" y="561"/>
+            <point key="canvasLocation" x="3524" y="-130"/>
         </scene>
         <!--History Tab View Controller-->
         <scene sceneID="history-tab-scene">
@@ -393,7 +393,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-tab-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3483" y="561"/>
+            <point key="canvasLocation" x="4934" y="-130"/>
         </scene>
         <!--Timeline View Controller-->
         <scene sceneID="timeline-scene">
@@ -408,7 +408,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="timeline-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4196" y="561"/>
+            <point key="canvasLocation" x="5647" y="-130"/>
         </scene>
         <!--Summary View Controller-->
         <scene sceneID="summary-scene">
@@ -423,7 +423,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="summary-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2784" y="561"/>
+            <point key="canvasLocation" x="4236" y="-130"/>
         </scene>
     </scenes>
     <resources>

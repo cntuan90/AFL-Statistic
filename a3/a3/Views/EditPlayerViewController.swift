@@ -20,6 +20,7 @@ class EditPlayerViewController: UIViewController {
     private var selectedImage: UIImage?
     private let db = Firestore.firestore()
     private let imagePicker = UIImagePickerController()
+    var onPlayerUpdated: (() -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +33,7 @@ class EditPlayerViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         
         cameraButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
-        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped(_:)), for: .touchUpInside)
         
         // Setup image view
         playerImageView.contentMode = .scaleAspectFit
@@ -229,17 +230,17 @@ class EditPlayerViewController: UIViewController {
         
         // Validate input
         if playerName.isEmpty {
-            showAlert(message: "Please enter player name")
+            showToast(message: "Please enter player name", type: .warning)
             return
         }
         
         if positionNumber < 0 {
-            showAlert(message: "Please enter a valid position number")
+            showToast(message: "Please enter a valid position number", type: .warning)
             return
         }
         
         if positionNumberExists {
-            showAlert(message: "This position number already exists in the team")
+            showToast(message: "This position number already exists in the team", type: .warning)
             return
         }
         
@@ -261,8 +262,11 @@ class EditPlayerViewController: UIViewController {
                 ]) { [weak self] error in
                     if let error = error {
                         print("Error updating player: \(error)")
+                        self?.showToast(message: "Error updating player: \(error.localizedDescription)", type: .error)
                         return
                     }
+                    self?.showToast(message: "Player updated successfully", type: .success)
+                    self?.onPlayerUpdated?()
                     self?.navigationController?.popViewController(animated: true)
                 }
             }
@@ -276,8 +280,11 @@ class EditPlayerViewController: UIViewController {
             ]) { [weak self] error in
                 if let error = error {
                     print("Error adding player: \(error)")
+                    self?.showToast(message: "Error adding player: \(error.localizedDescription)", type: .error)
                     return
                 }
+                self?.showToast(message: "Player added successfully", type: .success)
+                self?.onPlayerUpdated?()
                 self?.navigationController?.popViewController(animated: true)
             }
         }

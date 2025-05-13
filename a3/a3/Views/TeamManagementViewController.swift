@@ -25,6 +25,11 @@ class TeamManagementViewController: UIViewController {
         loadMatchData()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadMatchData()
+    }
+    
     private func setupUI() {
         title = "Team Management"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
@@ -47,15 +52,15 @@ class TeamManagementViewController: UIViewController {
     
     private func loadMatchData() {
         guard let match = match else { return }
-        
+            
         self.homeTeamLabel.text = match.home.name
         self.awayTeamLabel.text = match.away.name
         self.homeTeamPlayers = match.home.players
         self.awayTeamPlayers = match.away.players
         self.filteredHomePlayers = match.home.players
         self.filteredAwayPlayers = match.away.players
-        
-        DispatchQueue.main.async {
+            
+            DispatchQueue.main.async {
             self.homeTeamTableView.reloadData()
             self.awayTeamTableView.reloadData()
         }
@@ -70,6 +75,9 @@ class TeamManagementViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let editPlayerVC = storyboard.instantiateViewController(withIdentifier: "EditPlayerViewController") as! EditPlayerViewController
         editPlayerVC.match = match
+        editPlayerVC.onPlayerUpdated = { [weak self] in
+            self?.loadMatchData()
+        }
         navigationController?.pushViewController(editPlayerVC, animated: true)
     }
 }
@@ -117,6 +125,9 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
         editPlayerVC.match = match
         editPlayerVC.player = selectedPlayer
         editPlayerVC.isEditMode = true
+        editPlayerVC.onPlayerUpdated = { [weak self] in
+            self?.loadMatchData()
+        }
         navigationController?.pushViewController(editPlayerVC, animated: true)
     }
     
