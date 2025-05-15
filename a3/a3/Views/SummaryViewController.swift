@@ -3,270 +3,320 @@ import FirebaseFirestore
 
 class SummaryViewController: UIViewController {
     // MARK: - Properties
-    private var match: Match!
-    private var scrollView: UIScrollView!
-    private var contentView: UIView!
+    private var matches: [Match] = []
+    private var selectedMatch: Match?
+    private var filteredActions: [(player: Player, stats: PlayerStats)] = []
+    private var selectedTeam: String?
     private let db = Firestore.firestore()
     
     // MARK: - UI Elements
-    private lazy var matchInfoView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.lightGray.cgColor
-        view.layer.cornerRadius = 8
-        return view
+    private lazy var matchPicker: UIPickerView = {
+        let picker = UIPickerView()
+        picker.delegate = self
+        picker.dataSource = self
+        return picker
     }()
     
-    private lazy var homeTeamLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.textAlignment = .center
-        return label
+    private lazy var teamFilterSegment: UISegmentedControl = {
+        let segment = UISegmentedControl(items: ["All Teams", "Home", "Away"])
+        segment.selectedSegmentIndex = 0
+        segment.addTarget(self, action: #selector(teamFilterChanged), for: .valueChanged)
+        return segment
     }()
     
-    private lazy var awayTeamLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.textAlignment = .center
-        return label
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Search player..."
+        searchBar.delegate = self
+        return searchBar
     }()
     
-    private lazy var scoreLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 24, weight: .bold)
-        label.textAlignment = .center
-        return label
-    }()
-    
-    private lazy var dateLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16)
-        label.textAlignment = .center
-        label.textColor = .gray
-        return label
-    }()
-    
-    private lazy var statsTableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "StatsCell")
-        tableView.isScrollEnabled = false
-        tableView.layer.borderWidth = 1
-        tableView.layer.borderColor = UIColor.lightGray.cgColor
-        tableView.layer.cornerRadius = 8
+        tableView.register(PlayerStatsCell.self, forCellReuseIdentifier: "PlayerStatsCell")
+        tableView.rowHeight = 44
         return tableView
     }()
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupScrollView()
-        loadMatchData()
+        setupUI()
+        loadMatches()
     }
     
     // MARK: - Setup Methods
-    private func setupScrollView() {
-        // Create scroll view
-        scrollView = UIScrollView(frame: view.bounds)
-        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(scrollView)
+    private func setupUI() {
+        view.backgroundColor = .systemBackground
+        title = "Match Summary"
         
-        // Create content view
-        contentView = UIView()
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentView)
+        // Create stack view for controls
+        let controlsStack = UIStackView()
+        controlsStack.axis = .vertical
+        controlsStack.spacing = 8
+        controlsStack.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-        ])
-    }
-    
-    private func updateSummary() {
-        // Remove existing subviews
-        contentView.subviews.forEach { $0.removeFromSuperview() }
+        // Add controls to stack view
+        controlsStack.addArrangedSubview(matchPicker)
+        controlsStack.addArrangedSubview(teamFilterSegment)
+        controlsStack.addArrangedSubview(searchBar)
+        controlsStack.addArrangedSubview(tableView)
         
-        // Create summary content
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(stackView)
+        view.addSubview(controlsStack)
         
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
-        ])
-        
-        // Add match details
-        let matchInfoView = createInfoView(title: "Match Information", items: [
-            "Date: \(match.date)",
-            "Status: \(match.status)",
-            "Winner: \(match.winner ?? "TBD")"
-        ])
-        stackView.addArrangedSubview(matchInfoView)
-        
-        // Add team statistics
-        let homeStatsView = createInfoView(title: "\(match.home.name) Statistics", items: [
-            "Total Actions: \(match.home.actions.count)",
-            "Goals: \(match.home.actions.filter { $0.action == "goal" }.count)",
-            "Behinds: \(match.home.actions.filter { $0.action == "behind" }.count)"
-        ])
-        stackView.addArrangedSubview(homeStatsView)
-        
-        let awayStatsView = createInfoView(title: "\(match.away.name) Statistics", items: [
-            "Total Actions: \(match.away.actions.count)",
-            "Goals: \(match.away.actions.filter { $0.action == "goal" }.count)",
-            "Behinds: \(match.away.actions.filter { $0.action == "behind" }.count)"
-        ])
-        stackView.addArrangedSubview(awayStatsView)
-    }
-    
-    private func createInfoView(title: String, items: [String]) -> UIView {
-        let containerView = UIView()
-        containerView.backgroundColor = .systemBackground
-        containerView.layer.cornerRadius = 8
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor.systemGray4.cgColor
-        
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .boldSystemFont(ofSize: 18)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        items.forEach { item in
-            let label = UILabel()
-            label.text = item
-            label.font = .systemFont(ofSize: 16)
-            stackView.addArrangedSubview(label)
-        }
-        
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            controlsStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            controlsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            controlsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12)
+            matchPicker.heightAnchor.constraint(equalToConstant: 120),
+            teamFilterSegment.heightAnchor.constraint(equalToConstant: 40),
+            searchBar.heightAnchor.constraint(equalToConstant: 44)
         ])
-        
-        return containerView
     }
     
     // MARK: - Data Methods
-    private func loadMatchData() {
-        // TODO: Load match data from Firestore
-        // For now, using sample data
-        let homeTeam = Match.Team(name: "Home Team", players: [])
-        let awayTeam = Match.Team(name: "Away Team", players: [])
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        match = Match(home: homeTeam, away: awayTeam, status: "Not Started", currentQuarter: 1, startTime: Date().timeIntervalSince1970, lastAction: nil, matchStarted: false, date: formatter.string(from: Date()), winner: nil)
-        
-        updateUI()
+    private func loadMatches() {
+        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
+            if let error = error {
+                print("Error loading matches: \(error)")
+                return
+            }
+            
+            self?.matches = snapshot?.documents.compactMap { Match(document: $0) } ?? []
+            
+            DispatchQueue.main.async {
+                self?.matchPicker.reloadAllComponents()
+                if let firstMatch = self?.matches.first {
+                    self?.selectedMatch = firstMatch
+                    self?.updatePlayerStats()
+                }
+            }
+        }
     }
     
-    private func updateUI() {
-        guard let match = match else { return }
+    private func updatePlayerStats() {
+        guard let match = selectedMatch else { return }
         
-        homeTeamLabel.text = match.home.name
-        awayTeamLabel.text = match.away.name
+        var stats: [(player: Player, stats: PlayerStats)] = []
         
-        let homeGoals = match.home.actions.filter { $0.action == "goal" }.count
-        let homeBehinds = match.home.actions.filter { $0.action == "behind" }.count
-        let awayGoals = match.away.actions.filter { $0.action == "goal" }.count
-        let awayBehinds = match.away.actions.filter { $0.action == "behind" }.count
+        // Process home team players
+        if selectedTeam == nil || selectedTeam == "Home" {
+            for player in match.home.players {
+                let playerStats = calculatePlayerStats(player: player, actions: match.home.actions)
+                stats.append((player: player, stats: playerStats))
+            }
+        }
         
-        let homeTotal = homeGoals * 6 + homeBehinds
-        let awayTotal = awayGoals * 6 + awayBehinds
+        // Process away team players
+        if selectedTeam == nil || selectedTeam == "Away" {
+            for player in match.away.players {
+                let playerStats = calculatePlayerStats(player: player, actions: match.away.actions)
+                stats.append((player: player, stats: playerStats))
+            }
+        }
         
-        scoreLabel.text = "\(homeGoals).\(homeBehinds) (\(homeTotal)) - \(awayGoals).\(awayBehinds) (\(awayTotal))"
-        dateLabel.text = match.date
+        // Filter by search text if any
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            stats = stats.filter { $0.player.playerName.localizedCaseInsensitiveContains(searchText) }
+        }
         
-        statsTableView.reloadData()
+        filteredActions = stats
+        tableView.reloadData()
+    }
+    
+    private func calculatePlayerStats(player: Player, actions: [Match.Action]) -> PlayerStats {
+        let playerActions = actions.filter { $0.playerName == player.playerName }
+        
+        return PlayerStats(
+            kicks: playerActions.filter { $0.action == "kick" }.count,
+            hands: playerActions.filter { $0.action == "hand" }.count,
+            marks: playerActions.filter { $0.action == "mark" }.count,
+            tackles: playerActions.filter { $0.action == "tackle" }.count,
+            goals: playerActions.filter { $0.action == "goal" }.count,
+            behinds: playerActions.filter { $0.action == "behind" }.count
+        )
+    }
+    
+    // MARK: - Actions
+    @objc private func teamFilterChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            selectedTeam = nil
+        case 1:
+            selectedTeam = "Home"
+        case 2:
+            selectedTeam = "Away"
+        default:
+            break
+        }
+        updatePlayerStats()
+    }
+}
+
+// MARK: - UIPickerViewDelegate & UIPickerViewDataSource
+extension SummaryViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return matches.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let match = matches[row]
+        return "\(match.home.name) vs \(match.away.name)"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedMatch = matches[row]
+        updatePlayerStats()
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension SummaryViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        updatePlayerStats()
     }
 }
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
 extension SummaryViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 6 // Kicks, Handballs, Marks, Tackles, Goals, Behinds
+        return filteredActions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "StatsCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PlayerStatsCell", for: indexPath) as! PlayerStatsCell
+        let playerStats = filteredActions[indexPath.row]
         
-        guard let match = match else { return cell }
-        
-        let homeActions = match.home.actions
-        let awayActions = match.away.actions
-        
-        let statType: String
-        let homeCount: Int
-        let awayCount: Int
-        
-        switch indexPath.row {
-        case 0:
-            statType = "Kicks"
-            homeCount = homeActions.filter { $0.action == "kick" }.count
-            awayCount = awayActions.filter { $0.action == "kick" }.count
-        case 1:
-            statType = "Handballs"
-            homeCount = homeActions.filter { $0.action == "hand" }.count
-            awayCount = awayActions.filter { $0.action == "hand" }.count
-        case 2:
-            statType = "Marks"
-            homeCount = homeActions.filter { $0.action == "mark" }.count
-            awayCount = awayActions.filter { $0.action == "mark" }.count
-        case 3:
-            statType = "Tackles"
-            homeCount = homeActions.filter { $0.action == "tackle" }.count
-            awayCount = awayActions.filter { $0.action == "tackle" }.count
-        case 4:
-            statType = "Goals"
-            homeCount = homeActions.filter { $0.action == "goal" }.count
-            awayCount = awayActions.filter { $0.action == "goal" }.count
-        case 5:
-            statType = "Behinds"
-            homeCount = homeActions.filter { $0.action == "behind" }.count
-            awayCount = awayActions.filter { $0.action == "behind" }.count
-        default:
-            return cell
-        }
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = "\(statType): \(homeCount) - \(awayCount)"
-        cell.contentConfiguration = content
+        cell.configure(
+            positionNumber: playerStats.player.positionNumber,
+            playerName: playerStats.player.playerName,
+            stats: playerStats.stats
+        )
         
         return cell
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 44
-    }
 }
 
-// MARK: - Configuration
-extension SummaryViewController {
-    func configure(with match: Match) {
-        self.match = match
-        updateSummary()
+// MARK: - PlayerStats
+struct PlayerStats {
+    let kicks: Int
+    let hands: Int
+    let marks: Int
+    let tackles: Int
+    let goals: Int
+    let behinds: Int
+}
+
+// MARK: - PlayerStatsCell
+class PlayerStatsCell: UITableViewCell {
+    // MARK: - UI Elements
+    private let positionNumberLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let playerNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let kicksLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let handsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let marksLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let tacklesLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let goalsBehindsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    // MARK: - Initialization
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Setup Methods
+    private func setupUI() {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        stackView.addArrangedSubview(positionNumberLabel)
+        stackView.addArrangedSubview(playerNameLabel)
+        stackView.addArrangedSubview(kicksLabel)
+        stackView.addArrangedSubview(handsLabel)
+        stackView.addArrangedSubview(marksLabel)
+        stackView.addArrangedSubview(tacklesLabel)
+        stackView.addArrangedSubview(goalsBehindsLabel)
+        
+        contentView.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
+        ])
+    }
+    
+    // MARK: - Configuration
+    func configure(positionNumber: Int, playerName: String, stats: PlayerStats) {
+        positionNumberLabel.text = "\(positionNumber)"
+        playerNameLabel.text = playerName
+        kicksLabel.text = "\(stats.kicks)"
+        handsLabel.text = "\(stats.hands)"
+        marksLabel.text = "\(stats.marks)"
+        tacklesLabel.text = "\(stats.tackles)"
+        goalsBehindsLabel.text = "\(stats.goals).\(stats.behinds)"
     }
 } 
