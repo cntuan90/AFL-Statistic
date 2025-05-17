@@ -15,6 +15,7 @@ class TeamManagementViewController: UIViewController {
     private var filteredHomePlayers: [Player] = []
     private var filteredAwayPlayers: [Player] = []
     var match: Match?
+    var onMatchUpdated: ((Match) -> Void)?
     private let db = Firestore.firestore()
     
     override func viewDidLoad() {
@@ -111,6 +112,11 @@ class TeamManagementViewController: UIViewController {
                 
                 self?.homeTeamTableView.reloadData()
                 self?.awayTeamTableView.reloadData()
+                
+                // Notify parent of updated match data
+                if let updatedMatch = self?.match {
+                    self?.onMatchUpdated?(updatedMatch)
+                }
             }
         }
     }
@@ -195,10 +201,10 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
             let alertController = UIAlertController(title: "Delete Player", message: "Are you sure you want to delete \(player.playerName)?", preferredStyle: .alert)
             
             let deleteAction = UIAlertAction(title: "Yes", style: .destructive) { [weak self] _ in
-                guard let match = self?.match else { return }
+                guard let self = self, let match = self.match else { return }
                 
                 // Remove from Firestore
-                self?.db.collection("matches").document(match.id!).updateData([
+                self.db.collection("matches").document(match.id!).updateData([
                     isHomeTeam ? "home.players" : "away.players": FieldValue.arrayRemove([player.dictionary])
                 ]) { error in
                     if let error = error {
@@ -208,20 +214,25 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
                     
                     // Update local data
                     if isHomeTeam {
-                        self?.homeTeamPlayers.removeAll { $0.playerName == player.playerName }
-                        self?.filteredHomePlayers.removeAll { $0.playerName == player.playerName }
+                        self.homeTeamPlayers.removeAll { $0.playerName == player.playerName }
+                        self.filteredHomePlayers.removeAll { $0.playerName == player.playerName }
                         // Update match object
-                        self?.match?.home.players.removeAll { $0.playerName == player.playerName }
+                        self.match?.home.players.removeAll { $0.playerName == player.playerName }
                     } else {
-                        self?.awayTeamPlayers.removeAll { $0.playerName == player.playerName }
-                        self?.filteredAwayPlayers.removeAll { $0.playerName == player.playerName }
+                        self.awayTeamPlayers.removeAll { $0.playerName == player.playerName }
+                        self.filteredAwayPlayers.removeAll { $0.playerName == player.playerName }
                         // Update match object
-                        self?.match?.away.players.removeAll { $0.playerName == player.playerName }
+                        self.match?.away.players.removeAll { $0.playerName == player.playerName }
                     }
                     
                     DispatchQueue.main.async {
                         tableView.deleteRows(at: [indexPath], with: .fade)
-                        self?.showToast(message: "Delete \(player.playerName) successful!", type: .success)
+                        self.showToast(message: "Delete \(player.playerName) successful!", type: .success)
+                        
+                        // Notify parent of updated match data
+                        if let updatedMatch = self.match {
+                            self.onMatchUpdated?(updatedMatch)
+                        }
                     }
                 }
             }

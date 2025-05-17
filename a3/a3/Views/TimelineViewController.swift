@@ -38,6 +38,7 @@ class TimelineViewController: UIViewController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
+        stackView.spacing = 8
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         let labels = ["#", "Time", "Quarter", "Player Name", "Team", "Action"]

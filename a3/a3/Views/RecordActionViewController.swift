@@ -188,6 +188,7 @@ class RecordActionViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        loadMatchData()
         if matchStarted {
             startTimer()
         }
@@ -498,6 +499,10 @@ class RecordActionViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as? TeamManagementViewController {
             teamManagementVC.match = match
+            teamManagementVC.onMatchUpdated = { [weak self] updatedMatch in
+                self?.match = updatedMatch
+                self?.loadMatchData()
+            }
             navigationController?.pushViewController(teamManagementVC, animated: true)
         }
     }
