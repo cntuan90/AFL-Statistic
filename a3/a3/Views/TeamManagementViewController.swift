@@ -97,6 +97,11 @@ class TeamManagementViewController: UIViewController {
             }
             
             DispatchQueue.main.async {
+                // Update the match object with fresh data
+                self?.match?.home.players = homePlayers
+                self?.match?.away.players = awayPlayers
+                
+                // Update UI
                 self?.homeTeamLabel.text = match.home.name
                 self?.awayTeamLabel.text = match.away.name
                 self?.homeTeamPlayers = homePlayers
@@ -205,9 +210,13 @@ extension TeamManagementViewController: UITableViewDelegate, UITableViewDataSour
                     if isHomeTeam {
                         self?.homeTeamPlayers.removeAll { $0.playerName == player.playerName }
                         self?.filteredHomePlayers.removeAll { $0.playerName == player.playerName }
+                        // Update match object
+                        self?.match?.home.players.removeAll { $0.playerName == player.playerName }
                     } else {
                         self?.awayTeamPlayers.removeAll { $0.playerName == player.playerName }
                         self?.filteredAwayPlayers.removeAll { $0.playerName == player.playerName }
+                        // Update match object
+                        self?.match?.away.players.removeAll { $0.playerName == player.playerName }
                     }
                     
                     DispatchQueue.main.async {

@@ -191,6 +191,59 @@ class EditPlayerViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    private func updateMatchData(completion: @escaping () -> Void) {
+        guard let match = match, let matchId = match.id else {
+            completion()
+            return
+        }
+        
+        db.collection("matches").document(matchId).getDocument { [weak self] (document, error) in
+            guard let self = self,
+                  let document = document,
+                  let data = document.data(),
+                  let homeData = data["home"] as? [String: Any],
+                  let awayData = data["away"] as? [String: Any],
+                  let homePlayersData = homeData["players"] as? [[String: Any]],
+                  let awayPlayersData = awayData["players"] as? [[String: Any]] else {
+                completion()
+                return
+            }
+            
+            // Convert Firestore data to Player objects
+            let homePlayers = homePlayersData.compactMap { playerData -> Player? in
+                guard let playerName = playerData["playerName"] as? String,
+                      let positionNumber = playerData["positionNumber"] as? Int else {
+                    return nil
+                }
+                return Player(
+                    playerName: playerName,
+                    positionNumber: positionNumber,
+                    image: playerData["image"] as? String ?? "",
+                    injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                )
+            }
+            
+            let awayPlayers = awayPlayersData.compactMap { playerData -> Player? in
+                guard let playerName = playerData["playerName"] as? String,
+                      let positionNumber = playerData["positionNumber"] as? Int else {
+                    return nil
+                }
+                return Player(
+                    playerName: playerName,
+                    positionNumber: positionNumber,
+                    image: playerData["image"] as? String ?? "",
+                    injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                )
+            }
+            
+            // Update match data
+            self.match?.home.players = homePlayers
+            self.match?.away.players = awayPlayers
+            
+            completion()
+        }
+    }
+    
     @IBAction func saveButtonTapped(_ sender: UIButton) {
         guard let match = match else { return }
         
@@ -257,16 +310,26 @@ class EditPlayerViewController: UIViewController {
             if let index = players.firstIndex(where: { $0.playerName == player?.playerName }) {
                 players[index] = newPlayer
                 
+                let fieldPath = isHomeTeam ? "home.players" : "away.players"
                 db.collection("matches").document(match.id!).updateData([
-                    isHomeTeam ? "home.players" : "away.players": players.map { $0.dictionary }
+                    fieldPath: players.map { $0.dictionary }
                 ]) { [weak self] error in
                     if let error = error {
                         print("Error updating player: \(error)")
                         self?.showToast(message: "Error updating player: \(error.localizedDescription)", type: .error)
                         return
                     }
-                    self?.showToast(message: "Player updated successfully", type: .success)
+                    
+                    // Update the match object with the new player data
+                    if isHomeTeam {
+                        self?.match?.home.players = players
+                    } else {
+                        self?.match?.away.players = players
+                    }
+                    
+                    // Notify parent and pop view controller
                     self?.onPlayerUpdated?()
+                    self?.showToast(message: "Player updated successfully", type: .success)
                     self?.navigationController?.popViewController(animated: true)
                 }
             }
@@ -275,16 +338,26 @@ class EditPlayerViewController: UIViewController {
             var players = isHomeTeam ? match.home.players : match.away.players
             players.append(newPlayer)
             
+            let fieldPath = isHomeTeam ? "home.players" : "away.players"
             db.collection("matches").document(match.id!).updateData([
-                isHomeTeam ? "home.players" : "away.players": players.map { $0.dictionary }
+                fieldPath: players.map { $0.dictionary }
             ]) { [weak self] error in
                 if let error = error {
                     print("Error adding player: \(error)")
                     self?.showToast(message: "Error adding player: \(error.localizedDescription)", type: .error)
                     return
                 }
-                self?.showToast(message: "Player added successfully", type: .success)
+                
+                // Update the match object with the new player data
+                if isHomeTeam {
+                    self?.match?.home.players = players
+                } else {
+                    self?.match?.away.players = players
+                }
+                
+                // Notify parent and pop view controller
                 self?.onPlayerUpdated?()
+                self?.showToast(message: "Player added successfully", type: .success)
                 self?.navigationController?.popViewController(animated: true)
             }
         }

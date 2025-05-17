@@ -31,12 +31,43 @@ class TimelineViewController: UIViewController {
         return searchBar
     }()
     
+    private lazy var headerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray6
+        
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let labels = ["#", "Time", "Quarter", "Player Name", "Team", "Action"]
+        labels.forEach { title in
+            let label = UILabel()
+            label.text = title
+            label.font = .systemFont(ofSize: 14, weight: .bold)
+            label.textAlignment = .center
+            stackView.addArrangedSubview(label)
+        }
+        
+        view.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8)
+        ])
+        
+        return view
+    }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(TimelineCell.self, forCellReuseIdentifier: "TimelineCell")
         tableView.rowHeight = 44
+        tableView.tableHeaderView = headerView
         return tableView
     }()
     
@@ -66,15 +97,21 @@ class TimelineViewController: UIViewController {
         
         view.addSubview(controlsStack)
         
+        // Calculate safe area insets
+        let window = UIApplication.shared.windows.first
+        let bottomPadding = window?.safeAreaInsets.bottom ?? 0
+        let tabBarHeight: CGFloat = 49 // Standard tab bar height
+        
         NSLayoutConstraint.activate([
             controlsStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             controlsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             controlsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -(bottomPadding + tabBarHeight)),
             
             matchPicker.heightAnchor.constraint(equalToConstant: 120),
             teamFilterSegment.heightAnchor.constraint(equalToConstant: 40),
-            searchBar.heightAnchor.constraint(equalToConstant: 44)
+            searchBar.heightAnchor.constraint(equalToConstant: 44),
+            headerView.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     
@@ -221,12 +258,11 @@ class TimelineCell: UITableViewCell {
         stackView.spacing = 8
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        stackView.addArrangedSubview(positionNumberLabel)
-        stackView.addArrangedSubview(timeLabel)
-        stackView.addArrangedSubview(quarterLabel)
-        stackView.addArrangedSubview(playerNameLabel)
-        stackView.addArrangedSubview(teamLabel)
-        stackView.addArrangedSubview(actionLabel)
+        [positionNumberLabel, timeLabel, quarterLabel, playerNameLabel, teamLabel, actionLabel].forEach { label in
+            label.textAlignment = .center
+            label.font = .systemFont(ofSize: 14)
+            stackView.addArrangedSubview(label)
+        }
         
         contentView.addSubview(stackView)
         
