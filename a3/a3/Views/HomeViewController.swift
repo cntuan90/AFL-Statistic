@@ -16,41 +16,10 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         setupTableView()
         setupFirestoreListener()
-        setupBurgerMenu()
-    }
-    
-    private func setupBurgerMenu() {
-        let menuButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal"), style: .plain, target: self, action: #selector(showMenu))
-        navigationItem.leftBarButtonItem = menuButton
-    }
-    
-    @objc private func showMenu() {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-//        let teamManagementAction = UIAlertAction(title: "Team Management", style: .default) { [weak self] _ in
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let teamManagementVC = storyboard.instantiateViewController(withIdentifier: "TeamManagementViewController") as! TeamManagementViewController
-//            self?.navigationController?.pushViewController(teamManagementVC, animated: true)
-//        }
-        
-        let historyAction = UIAlertAction(title: "History", style: .default) { [weak self] _ in
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let historyVC = storyboard.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
-            self?.navigationController?.pushViewController(historyVC, animated: true)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-//        alertController.addAction(teamManagementAction)
-        alertController.addAction(historyAction)
-        alertController.addAction(cancelAction)
-        
-        // For iPad support
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.barButtonItem = navigationItem.leftBarButtonItem
-        }
-        
-        present(alertController, animated: true)
+        // Add history button
+        let historyButton = UIBarButtonItem(image: UIImage(systemName: "clock.arrow.circlepath"), style: .plain, target: self, action: #selector(historyButtonTapped))
+        navigationItem.leftBarButtonItem = historyButton
     }
     
     private func setupTableView() {
@@ -98,6 +67,14 @@ class HomeViewController: UIViewController {
         let addMatchVC = AddMatchViewController()
         addMatchVC.modalPresentationStyle = .fullScreen
         present(addMatchVC, animated: true)
+    }
+    
+    // MARK: - Actions
+    @objc private func historyButtonTapped() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let historyVC = storyboard.instantiateViewController(withIdentifier: "HistoryViewController") as? HistoryViewController {
+            navigationController?.pushViewController(historyVC, animated: true)
+        }
     }
 }
 

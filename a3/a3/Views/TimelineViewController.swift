@@ -3,87 +3,247 @@ import FirebaseFirestore
 
 class TimelineViewController: UIViewController {
     // MARK: - Properties
-    private var match: Match!
-    private var tableView: UITableView!
+    private var matches: [Match] = []
+    private var selectedMatch: Match?
+    private var filteredActions: [Match.Action] = []
+    private var selectedTeam: String?
     private let db = Firestore.firestore()
+    
+    // MARK: - UI Elements
+    private lazy var matchPicker: UIPickerView = {
+        let picker = UIPickerView()
+        picker.delegate = self
+        picker.dataSource = self
+        return picker
+    }()
+    
+    private lazy var teamFilterSegment: UISegmentedControl = {
+        let segment = UISegmentedControl(items: ["All Teams", "Home", "Away"])
+        segment.selectedSegmentIndex = 0
+        segment.addTarget(self, action: #selector(teamFilterChanged), for: .valueChanged)
+        return segment
+    }()
+    
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Search player..."
+        searchBar.delegate = self
+        return searchBar
+    }()
+    
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(TimelineCell.self, forCellReuseIdentifier: "TimelineCell")
+        tableView.rowHeight = 44
+        return tableView
+    }()
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupTableView()
-        loadMatchData()
+        setupUI()
+        loadMatches()
     }
     
     // MARK: - Setup Methods
-    private func setupTableView() {
-        tableView = UITableView(frame: view.bounds, style: .plain)
-        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "TimelineCell")
-        view.addSubview(tableView)
-    }
-    
-    // MARK: - Configuration
-    func configure(with match: Match) {
-        self.match = match
-        tableView.reloadData()
+    private func setupUI() {
+        view.backgroundColor = .systemBackground
+        title = "Match Timeline"
+        
+        // Create stack view for controls
+        let controlsStack = UIStackView()
+        controlsStack.axis = .vertical
+        controlsStack.spacing = 8
+        controlsStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add controls to stack view
+        controlsStack.addArrangedSubview(matchPicker)
+        controlsStack.addArrangedSubview(teamFilterSegment)
+        controlsStack.addArrangedSubview(searchBar)
+        controlsStack.addArrangedSubview(tableView)
+        
+        view.addSubview(controlsStack)
+        
+        NSLayoutConstraint.activate([
+            controlsStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            controlsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            controlsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            matchPicker.heightAnchor.constraint(equalToConstant: 120),
+            teamFilterSegment.heightAnchor.constraint(equalToConstant: 40),
+            searchBar.heightAnchor.constraint(equalToConstant: 44)
+        ])
     }
     
     // MARK: - Data Methods
-    private func loadMatchData() {
-        // TODO: Load match data from Firestore
-        // For now, using sample data
-        let homeTeam = Match.Team(name: "Home Team", players: [])
-        let awayTeam = Match.Team(name: "Away Team", players: [])
+    private func loadMatches() {
+        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
+            if let error = error {
+                print("Error loading matches: \(error)")
+                return
+            }
+            
+            self?.matches = snapshot?.documents.compactMap { Match(document: $0) } ?? []
+            
+            DispatchQueue.main.async {
+                self?.matchPicker.reloadAllComponents()
+                if let firstMatch = self?.matches.first {
+                    self?.selectedMatch = firstMatch
+                    self?.updateActions()
+                }
+            }
+        }
+    }
+    
+    private func updateActions() {
+        guard let match = selectedMatch else { return }
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.string(from: Date())
+        var actions: [Match.Action] = []
         
-        match = Match(home: homeTeam, away: awayTeam, status: "Not Started", currentQuarter: 1, startTime: Date().timeIntervalSince1970, lastAction: nil, matchStarted: false, date: dateString, winner: nil)
+        // Process home team actions
+        if selectedTeam == nil || selectedTeam == "Home" {
+            actions.append(contentsOf: match.home.actions)
+        }
         
+        // Process away team actions
+        if selectedTeam == nil || selectedTeam == "Away" {
+            actions.append(contentsOf: match.away.actions)
+        }
+        
+        // Filter by search text if any
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            actions = actions.filter { $0.playerName.localizedCaseInsensitiveContains(searchText) }
+        }
+        
+        // Sort actions by time
+        actions.sort { $0.time < $1.time }
+        
+        filteredActions = actions
         tableView.reloadData()
     }
     
-    private func getAllActions() -> [Match.Action] {
-        guard let match = match else { return [] }
-        
-        var allActions = match.home.actions + match.away.actions
-        allActions.sort { $0.time < $1.time }
-        return allActions
+    // MARK: - Actions
+    @objc private func teamFilterChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            selectedTeam = nil
+        case 1:
+            selectedTeam = "Home"
+        case 2:
+            selectedTeam = "Away"
+        default:
+            break
+        }
+        updateActions()
+    }
+}
+
+// MARK: - UIPickerViewDelegate & UIPickerViewDataSource
+extension TimelineViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return matches.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let match = matches[row]
+        return "\(match.home.name) vs \(match.away.name)"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedMatch = matches[row]
+        updateActions()
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension TimelineViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        updateActions()
     }
 }
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
 extension TimelineViewController: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 4 // Quarters
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Quarter \(section + 1)"
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let quarterActions = (match.home.actions + match.away.actions).filter { $0.actionQuarter == section + 1 }
-        return quarterActions.count
+        return filteredActions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TimelineCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TimelineCell", for: indexPath) as! TimelineCell
+        let action = filteredActions[indexPath.row]
         
-        let quarterActions = (match.home.actions + match.away.actions)
-            .filter { $0.actionQuarter == indexPath.section + 1 }
-            .sorted { $0.time < $1.time }
+        // Determine which team the action belongs to
+        let isHomeTeam = selectedMatch?.home.actions.contains(where: { $0.time == action.time && $0.playerName == action.playerName }) ?? false
+        let teamName = isHomeTeam ? selectedMatch?.home.name : selectedMatch?.away.name
         
-        let action = quarterActions[indexPath.row]
-        cell.textLabel?.text = "\(action.time) - \(action.playerName) (\(action.action))"
+        cell.configure(
+            positionNumber: action.positionNumber,
+            time: action.time,
+            quarter: action.actionQuarter,
+            playerName: action.playerName,
+            teamName: teamName ?? "",
+            action: action.action
+        )
         
         return cell
     }
+}
+
+// MARK: - TimelineCell
+class TimelineCell: UITableViewCell {
+    private let positionNumberLabel = UILabel()
+    private let timeLabel = UILabel()
+    private let quarterLabel = UILabel()
+    private let playerNameLabel = UILabel()
+    private let teamLabel = UILabel()
+    private let actionLabel = UILabel()
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        stackView.addArrangedSubview(positionNumberLabel)
+        stackView.addArrangedSubview(timeLabel)
+        stackView.addArrangedSubview(quarterLabel)
+        stackView.addArrangedSubview(playerNameLabel)
+        stackView.addArrangedSubview(teamLabel)
+        stackView.addArrangedSubview(actionLabel)
+        
+        contentView.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
+        ])
+    }
+    
+    func configure(positionNumber: Int, time: String, quarter: Int, playerName: String, teamName: String, action: String) {
+        positionNumberLabel.text = "\(positionNumber)"
+        timeLabel.text = "\(time)"
+        quarterLabel.text = "Q\(quarter)"
+        playerNameLabel.text = playerName
+        teamLabel.text = teamName
+        actionLabel.text = action
     }
 } 

@@ -12,6 +12,8 @@ struct Match: Codable {
     var matchStarted: Bool
     var date: String
     var winner: String?
+    var awayScore: String
+    var homeScore: String
     
     struct Team: Codable {
         var name: String
@@ -35,7 +37,7 @@ struct Match: Codable {
         let actionQuarter: Int
     }
     
-    init(home: Team, away: Team, status: String, currentQuarter: Int, startTime: TimeInterval, lastAction: Action?, matchStarted: Bool, date: String, winner: String?) {
+    init(home: Team, away: Team, status: String, currentQuarter: Int, startTime: TimeInterval, lastAction: Action?, matchStarted: Bool, date: String, winner: String?, homeScore: String = "0.0 (0)", awayScore: String = "0.0 (0)") {
         self.id = nil
         self.home = home
         self.away = away
@@ -46,6 +48,8 @@ struct Match: Codable {
         self.matchStarted = matchStarted
         self.date = date
         self.winner = winner
+        self.homeScore = homeScore
+        self.awayScore = awayScore
     }
 }
 
@@ -139,5 +143,7 @@ extension Match {
         self.matchStarted = matchStarted
         self.date = date
         self.winner = data["winner"] as? String
+        self.homeScore = data["homeScore"] as? String ?? "0.0 (0)"
+        self.awayScore = data["awayScore"] as? String ?? "0.0 (0)"
     }
 }

@@ -12,6 +12,7 @@ class RecordActionViewController: UIViewController {
     private var lastAction: Match.Action?
     private var matchStarted = false
     private var timer: Timer?
+    private var elapsedTime: TimeInterval = 0
     private let db = Firestore.firestore()
     
     // MARK: - UI Elements
@@ -443,6 +444,51 @@ class RecordActionViewController: UIViewController {
         }
     }
     
+    // MARK: - Helper Methods
+    private func calculateMatchScore() -> (homeScore: String, awayScore: String, winner: String) {
+        guard let match = match else { return ("0 . 0 (0)", "0 . 0 (0)", "Draw") }
+        
+        // Calculate goals and behinds for each quarter
+        let homeScoreQ1Goals = match.home.actions.filter { $0.action == "goal" && $0.actionQuarter == 1 }.count
+        let homeScoreQ1Behinds = match.home.actions.filter { $0.action == "behind" && $0.actionQuarter == 1 }.count
+        let awayScoreQ1Goals = match.away.actions.filter { $0.action == "goal" && $0.actionQuarter == 1 }.count
+        let awayScoreQ1Behinds = match.away.actions.filter { $0.action == "behind" && $0.actionQuarter == 1 }.count
+        
+        let homeScoreQ2Goals = match.home.actions.filter { $0.action == "goal" && $0.actionQuarter == 2 }.count + homeScoreQ1Goals
+        let homeScoreQ2Behinds = match.home.actions.filter { $0.action == "behind" && $0.actionQuarter == 2 }.count + homeScoreQ1Behinds
+        let awayScoreQ2Goals = match.away.actions.filter { $0.action == "goal" && $0.actionQuarter == 2 }.count + awayScoreQ1Goals
+        let awayScoreQ2Behinds = match.away.actions.filter { $0.action == "behind" && $0.actionQuarter == 2 }.count + awayScoreQ1Behinds
+        
+        let homeScoreQ3Goals = match.home.actions.filter { $0.action == "goal" && $0.actionQuarter == 3 }.count + homeScoreQ2Goals
+        let homeScoreQ3Behinds = match.home.actions.filter { $0.action == "behind" && $0.actionQuarter == 3 }.count + homeScoreQ2Behinds
+        let awayScoreQ3Goals = match.away.actions.filter { $0.action == "goal" && $0.actionQuarter == 3 }.count + awayScoreQ2Goals
+        let awayScoreQ3Behinds = match.away.actions.filter { $0.action == "behind" && $0.actionQuarter == 3 }.count + awayScoreQ2Behinds
+        
+        let homeScoreFinalGoals = match.home.actions.filter { $0.action == "goal" && $0.actionQuarter == 4 }.count + homeScoreQ3Goals
+        let homeScoreFinalBehinds = match.home.actions.filter { $0.action == "behind" && $0.actionQuarter == 4 }.count + homeScoreQ3Behinds
+        let homeScoreFinalTotal = homeScoreFinalGoals * 6 + homeScoreFinalBehinds
+        
+        let awayScoreFinalGoals = match.away.actions.filter { $0.action == "goal" && $0.actionQuarter == 4 }.count + awayScoreQ3Goals
+        let awayScoreFinalBehinds = match.away.actions.filter { $0.action == "behind" && $0.actionQuarter == 4 }.count + awayScoreQ3Behinds
+        let awayScoreFinalTotal = awayScoreFinalGoals * 6 + awayScoreFinalBehinds
+        
+        // Format scores
+        let homeScore = String(format: "%d . %d (%d)", homeScoreFinalGoals, homeScoreFinalBehinds, homeScoreFinalTotal)
+        let awayScore = String(format: "%d . %d (%d)", awayScoreFinalGoals, awayScoreFinalBehinds, awayScoreFinalTotal)
+        
+        // Determine winner
+        let winner: String
+        if homeScoreFinalTotal > awayScoreFinalTotal {
+            winner = "Home"
+        } else if homeScoreFinalTotal < awayScoreFinalTotal {
+            winner = "Away"
+        } else {
+            winner = "Draw"
+        }
+        
+        return (homeScore, awayScore, winner)
+    }
+    
     // MARK: - Action Methods
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
@@ -692,7 +738,9 @@ class RecordActionViewController: UIViewController {
                 "actionQuarter": $0.actionQuarter
             ] },
             "status": match.status,
-            "winner": match.winner ?? NSNull()
+            "winner": match.winner ?? NSNull(),
+            "homeScore": match.homeScore,
+            "awayScore": match.awayScore
         ]
         
         db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in

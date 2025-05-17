@@ -40,6 +40,10 @@ class HistoryViewController: UIViewController {
         timelineVC.tabBarItem = UITabBarItem(title: "Timeline", image: UIImage(systemName: "list.bullet"), tag: 1)
         summaryVC.tabBarItem = UITabBarItem(title: "Summary", image: UIImage(systemName: "doc.text"), tag: 2)
         
+        // Add share button to HistoryTabViewController
+        let shareButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: historyTabVC, action: #selector(HistoryTabViewController.shareButtonTapped))
+        historyTabVC.navigationItem.rightBarButtonItem = shareButton
+        
         // Set view controllers
         customTabBarController.viewControllers = [historyTabVC, timelineVC, summaryVC]
     }
