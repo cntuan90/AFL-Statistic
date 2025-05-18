@@ -45,6 +45,18 @@ class SummaryViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         loadMatches()
+        
+        // Configure navigation bar
+        navigationItem.title = ""
+        navigationItem.largeTitleDisplayMode = .never
+        
+        // Add share button
+        let shareButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: self, action: #selector(shareButtonTapped))
+        navigationItem.rightBarButtonItem = shareButton
+        
+        // Ensure navigation bar is visible
+        navigationController?.setNavigationBarHidden(false, animated: false)
+        navigationController?.navigationBar.isHidden = false
     }
     
     // MARK: - Setup Methods
@@ -160,6 +172,51 @@ class SummaryViewController: UIViewController {
         }
         updatePlayerStats()
     }
+    
+    // MARK: - Share Methods
+    @objc private func shareButtonTapped() {
+        guard let match = selectedMatch else {
+            // Show alert if no match is selected
+            let alert = UIAlertController(
+                title: "No Match Selected",
+                message: "Please select a match to share.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // Create detailed share text
+        var shareText = """
+        Match Summary: \(match.home.name) vs \(match.away.name)
+        Date: \(match.date ?? "N/A")
+        Score: \(match.homeScore) - \(match.awayScore)
+        
+        Home Team (\(match.home.name)) Records:
+        """
+        
+        // Add home team records
+        for action in match.home.actions.sorted(by: { $0.time < $1.time }) {
+            shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+        }
+        
+        shareText += "\n\nAway Team (\(match.away.name)) Records:"
+        
+        // Add away team records
+        for action in match.away.actions.sorted(by: { $0.time < $1.time }) {
+            shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+        }
+        
+        // Create activity view controller
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        
+        // Present the share sheet
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        present(activityVC, animated: true)
+    }
 }
 
 // MARK: - UIPickerViewDelegate & UIPickerViewDataSource
@@ -207,6 +264,21 @@ extension SummaryViewController: UITableViewDelegate, UITableViewDataSource {
         )
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        guard let match = selectedMatch else { return }
+        
+        let playerStats = filteredActions[indexPath.row]
+        let player = playerStats.player
+        
+        if let imageVC = storyboard?.instantiateViewController(withIdentifier: "ImageViewController") as? ImageViewController {
+            imageVC.configure(with: player.image)
+            imageVC.title = player.playerName
+            navigationController?.pushViewController(imageVC, animated: true)
+        }
     }
 }
 

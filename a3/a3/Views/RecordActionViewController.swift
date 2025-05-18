@@ -576,6 +576,12 @@ class RecordActionViewController: UIViewController {
     private func startMatch() {
         guard let match = match else { return }
         
+        // Check if each team has at least 2 players
+        if match.home.players.count < 2 || match.away.players.count < 2 {
+            showToast(message: "Need at least 2 players each team to start!", type: .warning)
+            return
+        }
+        
         matchStarted = true
         startTime = Date().timeIntervalSince1970
         startEndQuarterButton.setTitle("END QUARTER", for: .normal)
@@ -688,9 +694,23 @@ class RecordActionViewController: UIViewController {
             updatedAwayTeam.actions.append(action)
         }
         
-        // Create a new match instance with updated teams
+        // Calculate scores
+        let homeGoals = updatedHomeTeam.actions.filter { $0.action == "goal" }.count
+        let homeBehinds = updatedHomeTeam.actions.filter { $0.action == "behind" }.count
+        let awayGoals = updatedAwayTeam.actions.filter { $0.action == "goal" }.count
+        let awayBehinds = updatedAwayTeam.actions.filter { $0.action == "behind" }.count
+        
+        let homeTotal = homeGoals * 6 + homeBehinds
+        let awayTotal = awayGoals * 6 + awayBehinds
+        let homeScore = String(format: "%d . %d (%d)", homeGoals, homeBehinds, homeTotal)
+        let awayScore = String(format: "%d . %d (%d)", awayGoals, awayBehinds, awayTotal)
+        
+        // Create a new match instance with updated teams and scores
         var updatedMatch = match
-        updatedMatch.status = "Ended"
+        updatedMatch.home = updatedHomeTeam
+        updatedMatch.away = updatedAwayTeam
+        updatedMatch.homeScore = homeScore
+        updatedMatch.awayScore = awayScore
         
         // Update the match property
         self.match = updatedMatch

@@ -42,7 +42,6 @@ class HistoryTabViewController: UIViewController {
     
     // MARK: - Setup Methods
     private func setupUI() {
-        title = "Match History"
         view.backgroundColor = .systemBackground
         
         // Setup table view
@@ -174,43 +173,29 @@ extension HistoryTabViewController: UITableViewDelegate, UITableViewDataSource {
         let homeTotal = homeGoals * 6 + homeBehinds
         let awayTotal = awayGoals * 6 + awayBehinds
         
+        // Determine winner
+        let isHomeWinner = homeTotal > awayTotal
+        
         // Configure cell
         cell.configure(
             teams: "\(match.home.name) vs \(match.away.name)",
             date: match.date ?? "N/A",
-            score: "\(homeGoals).\(homeBehinds) (\(homeTotal)) - \(awayGoals).\(awayBehinds) (\(awayTotal))"
+            score: "\(homeGoals).\(homeBehinds) (\(homeTotal)) - \(awayGoals).\(awayBehinds) (\(awayTotal))",
+            isHomeWinner: isHomeWinner
         )
         
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        tableView.deselectRow(at: indexPath, animated: true)
-//        selectedMatch = completedMatches[indexPath.row]
-//        
-//        // Create and present ImageViewController
-//        let imageVC = ImageViewController()
-//        
-//        // Get the first player's image from either team
-//        if let firstPlayer = selectedMatch?.home.players.first,
-//           !firstPlayer.image.isEmpty {
-//            imageVC.configure(with: firstPlayer.image)
-//            navigationController?.pushViewController(imageVC, animated: true)
-//        } else if let firstPlayer = selectedMatch?.away.players.first,
-//                  !firstPlayer.image.isEmpty {
-//            imageVC.configure(with: firstPlayer.image)
-//            navigationController?.pushViewController(imageVC, animated: true)
-//        } else {
-//            // Show alert if no player image is available
-//            let alert = UIAlertController(
-//                title: "No Image Available",
-//                message: "No player images are available for this match.",
-//                preferredStyle: .alert
-//            )
-//            alert.addAction(UIAlertAction(title: "OK", style: .default))
-//            present(alert, animated: true)
-//        }
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        selectedMatch = completedMatches[indexPath.row]
+        
+        // Create and present StatsComparisonViewController programmatically
+        let statsVC = StatsComparisonViewController()
+        statsVC.match = selectedMatch
+        navigationController?.pushViewController(statsVC, animated: true)
+    }
 }
 
 // MARK: - HistoryTableViewCell
@@ -219,6 +204,7 @@ class HistoryTableViewCell: UITableViewCell {
     private let teamsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -233,9 +219,10 @@ class HistoryTableViewCell: UITableViewCell {
     
     private let scoreLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.adjustsFontSizeToFitWidth = true
         return label
     }()
     
@@ -257,8 +244,9 @@ class HistoryTableViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             teamsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            teamsLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            teamsLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.4),
+            teamsLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            teamsLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            teamsLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.3),
             
             dateLabel.leadingAnchor.constraint(equalTo: teamsLabel.trailingAnchor, constant: 8),
             dateLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -267,14 +255,34 @@ class HistoryTableViewCell: UITableViewCell {
             scoreLabel.leadingAnchor.constraint(equalTo: dateLabel.trailingAnchor, constant: 8),
             scoreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             scoreLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            scoreLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.25)
+            scoreLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.35)
         ])
     }
     
     // MARK: - Configuration
-    func configure(teams: String, date: String, score: String) {
+    func configure(teams: String, date: String, score: String, isHomeWinner: Bool) {
         teamsLabel.text = teams
         dateLabel.text = date
-        scoreLabel.text = score
+        
+        // Create attributed string for score
+        let attributedScore = NSMutableAttributedString(string: score)
+        
+        // Find the score parts
+        let components = score.components(separatedBy: " - ")
+        if components.count == 2 {
+            let homeScore = components[0]
+            let awayScore = components[1]
+            
+            // Highlight the winner's score
+            if isHomeWinner {
+                let homeRange = (score as NSString).range(of: homeScore)
+                attributedScore.addAttribute(.foregroundColor, value: UIColor.systemGreen, range: homeRange)
+            } else {
+                let awayRange = (score as NSString).range(of: awayScore)
+                attributedScore.addAttribute(.foregroundColor, value: UIColor.systemGreen, range: awayRange)
+            }
+        }
+        
+        scoreLabel.attributedText = attributedScore
     }
 } 

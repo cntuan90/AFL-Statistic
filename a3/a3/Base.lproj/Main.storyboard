@@ -687,7 +687,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RC3-5M-7aM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3466" y="-788"/>
+            <point key="canvasLocation" x="3552" y="-788"/>
         </scene>
         <!--Summars View Controller-->
         <scene sceneID="3mv-qi-nnB">
@@ -729,7 +729,22 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AUG-r9-Wyx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4132" y="-788"/>
+            <point key="canvasLocation" x="4340" y="-788"/>
+        </scene>
+        <!--Image View Controller-->
+        <scene sceneID="image-vc-scene">
+            <objects>
+                <viewController storyboardIdentifier="ImageViewController" id="image-vc" customClass="ImageViewController" customModule="a3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="image-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="image-safe-area"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="image-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6471" y="-788"/>
         </scene>
     </scenes>
     <resources>
