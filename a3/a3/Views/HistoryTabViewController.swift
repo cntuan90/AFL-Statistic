@@ -184,33 +184,33 @@ extension HistoryTabViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        selectedMatch = completedMatches[indexPath.row]
-        
-        // Create and present ImageViewController
-        let imageVC = ImageViewController()
-        
-        // Get the first player's image from either team
-        if let firstPlayer = selectedMatch?.home.players.first,
-           !firstPlayer.image.isEmpty {
-            imageVC.configure(with: firstPlayer.image)
-            navigationController?.pushViewController(imageVC, animated: true)
-        } else if let firstPlayer = selectedMatch?.away.players.first,
-                  !firstPlayer.image.isEmpty {
-            imageVC.configure(with: firstPlayer.image)
-            navigationController?.pushViewController(imageVC, animated: true)
-        } else {
-            // Show alert if no player image is available
-            let alert = UIAlertController(
-                title: "No Image Available",
-                message: "No player images are available for this match.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-        }
-    }
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        tableView.deselectRow(at: indexPath, animated: true)
+//        selectedMatch = completedMatches[indexPath.row]
+//        
+//        // Create and present ImageViewController
+//        let imageVC = ImageViewController()
+//        
+//        // Get the first player's image from either team
+//        if let firstPlayer = selectedMatch?.home.players.first,
+//           !firstPlayer.image.isEmpty {
+//            imageVC.configure(with: firstPlayer.image)
+//            navigationController?.pushViewController(imageVC, animated: true)
+//        } else if let firstPlayer = selectedMatch?.away.players.first,
+//                  !firstPlayer.image.isEmpty {
+//            imageVC.configure(with: firstPlayer.image)
+//            navigationController?.pushViewController(imageVC, animated: true)
+//        } else {
+//            // Show alert if no player image is available
+//            let alert = UIAlertController(
+//                title: "No Image Available",
+//                message: "No player images are available for this match.",
+//                preferredStyle: .alert
+//            )
+//            alert.addAction(UIAlertAction(title: "OK", style: .default))
+//            present(alert, animated: true)
+//        }
+//    }
 }
 
 // MARK: - HistoryTableViewCell

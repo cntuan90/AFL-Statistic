@@ -66,12 +66,17 @@ class SummaryViewController: UIViewController {
         
         view.addSubview(controlsStack)
         
+        // Calculate safe area insets
+        let window = UIApplication.shared.windows.first
+        let bottomPadding = window?.safeAreaInsets.bottom ?? 0
+        let tabBarHeight: CGFloat = 49 // Standard tab bar height
+        
         NSLayoutConstraint.activate([
             controlsStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             controlsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             controlsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
+            controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -(bottomPadding + tabBarHeight)),
+
             matchPicker.heightAnchor.constraint(equalToConstant: 120),
             teamFilterSegment.heightAnchor.constraint(equalToConstant: 40),
             searchBar.heightAnchor.constraint(equalToConstant: 44)

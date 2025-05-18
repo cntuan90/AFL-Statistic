@@ -4,7 +4,7 @@ import PhotosUI
 import AVFoundation
 
 class EditPlayerViewController: UIViewController {
-    @IBOutlet weak var titleLabel: UILabel!
+//    @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var playerImageView: UIImageView!
     @IBOutlet weak var playerNameTextField: UITextField!
     @IBOutlet weak var positionNumberTextField: UITextField!
@@ -57,7 +57,8 @@ class EditPlayerViewController: UIViewController {
     
     private func loadData() {
         if isEditMode, let player = player {
-            titleLabel.text = "EDIT PLAYER"
+//            titleLabel.text = "EDIT PLAYER"
+            title = "Edit Player"
             playerNameTextField.text = player.playerName
             positionNumberTextField.text = String(player.positionNumber)
             teamSegmentedControl.isEnabled = false
@@ -84,7 +85,8 @@ class EditPlayerViewController: UIViewController {
                 }
             }
         } else {
-            titleLabel.text = "ADD PLAYER"
+//            titleLabel.text = "ADD PLAYER"
+            title = "Add Player"
             teamSegmentedControl.isEnabled = true
             teamSegmentedControl.selectedSegmentIndex = 0
             
@@ -103,9 +105,9 @@ class EditPlayerViewController: UIViewController {
     @IBAction func cameraButtonTapped(_ sender: UIButton) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-        let cameraAction = UIAlertAction(title: "Take Photo", style: .default) { [weak self] _ in
-            self?.checkCameraPermission()
-        }
+//        let cameraAction = UIAlertAction(title: "Take Photo", style: .default) { [weak self] _ in
+//            self?.checkCameraPermission()
+//        }
         
         let libraryAction = UIAlertAction(title: "Choose from Library", style: .default) { [weak self] _ in
             self?.showImagePicker()
@@ -113,7 +115,7 @@ class EditPlayerViewController: UIViewController {
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
-        alertController.addAction(cameraAction)
+//        alertController.addAction(cameraAction)
         alertController.addAction(libraryAction)
         alertController.addAction(cancelAction)
         
