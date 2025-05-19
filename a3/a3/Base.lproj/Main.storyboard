@@ -358,7 +358,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="record-action-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5752" y="-788"/>
+            <point key="canvasLocation" x="4340" y="-130"/>
         </scene>
         <!--Add Match View Controller-->
         <scene sceneID="Oa4-xR-SVK">
@@ -433,7 +433,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6471" y="-130"/>
+            <point key="canvasLocation" x="5069" y="158"/>
         </scene>
         <!--History Tabs View Controller-->
         <scene sceneID="GUs-2m-9HO">
@@ -490,7 +490,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="history-tab-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5039" y="-130"/>
+            <point key="canvasLocation" x="5073" y="-27"/>
         </scene>
         <!--Timeline View Controller-->
         <scene sceneID="timeline-scene">
@@ -505,7 +505,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="timeline-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5752" y="-130"/>
+            <point key="canvasLocation" x="5069" y="65"/>
         </scene>
         <!--Summary View Controller-->
         <scene sceneID="summary-scene">
@@ -520,7 +520,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="summary-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4341" y="-130"/>
+            <point key="canvasLocation" x="5069" y="-87"/>
         </scene>
         <!--Record Action View-->
         <scene sceneID="Kbe-qf-UK0">
@@ -744,7 +744,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="image-first-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6471" y="-788"/>
+            <point key="canvasLocation" x="5073" y="-130"/>
         </scene>
     </scenes>
     <resources>

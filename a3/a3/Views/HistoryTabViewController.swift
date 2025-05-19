@@ -4,7 +4,7 @@ import FirebaseFirestore
 class HistoryTabViewController: UIViewController {
     
     // MARK: - Properties
-    private var completedMatches: [Match] = []
+    var completedMatches: [Match] = []
     private var selectedMatch: Match?
     private let db = Firestore.firestore()
     private var listener: ListenerRegistration?
@@ -27,12 +27,6 @@ class HistoryTabViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupFirestoreListener()
-        
-        // Add share button if not already set
-        if navigationItem.rightBarButtonItem == nil {
-            let shareButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: self, action: #selector(shareButtonTapped))
-            navigationItem.rightBarButtonItem = shareButton
-        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -77,37 +71,6 @@ class HistoryTabViewController: UIViewController {
                     self?.tableView.reloadData()
                 }
             }
-    }
-    
-    // MARK: - Actions
-    @objc func shareButtonTapped() {
-        guard let match = selectedMatch else {
-            // Show alert if no match is selected
-            let alert = UIAlertController(
-                title: "No Match Selected",
-                message: "Please select a match to share.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        
-        // Create share text
-        let shareText = """
-        Match Summary: \(match.home.name) vs \(match.away.name)
-        Date: \(match.date)
-        Score: \(match.homeScore) - \(match.awayScore) 
-        """
-        
-        // Create activity view controller
-        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
-        
-        // Present the share sheet
-        if let popoverController = activityVC.popoverPresentationController {
-            popoverController.barButtonItem = navigationItem.rightBarButtonItem
-        }
-        present(activityVC, animated: true)
     }
     
     // MARK: - Helper Methods

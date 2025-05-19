@@ -3,7 +3,7 @@ import FirebaseFirestore
 
 class TimelineViewController: UIViewController {
     // MARK: - Properties
-    private var matches: [Match] = []
+    var matches: [Match] = []
     private var selectedMatch: Match?
     private var filteredActions: [Match.Action] = []
     private var selectedTeam: String?
@@ -32,7 +32,7 @@ class TimelineViewController: UIViewController {
     }()
     
     private lazy var headerView: UIView = {
-        let view = UIView()
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
         view.backgroundColor = .systemGray6
         
         let stackView = UIStackView()
@@ -41,7 +41,7 @@ class TimelineViewController: UIViewController {
         stackView.spacing = 8
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        let labels = ["#", "Time", "Quarter", "Player Name", "Team", "Action"]
+        let labels = ["#", "Time", "Quarter", "Name", "Team", "Action"]
         labels.forEach { title in
             let label = UILabel()
             label.text = title
@@ -69,6 +69,7 @@ class TimelineViewController: UIViewController {
         tableView.register(TimelineCell.self, forCellReuseIdentifier: "TimelineCell")
         tableView.rowHeight = 44
         tableView.tableHeaderView = headerView
+        tableView.tableFooterView = UIView() // Add empty footer to prevent extra separators
         return tableView
     }()
     
@@ -81,10 +82,6 @@ class TimelineViewController: UIViewController {
         // Configure navigation bar
         navigationItem.title = ""
         navigationItem.largeTitleDisplayMode = .never
-        
-        // Add share button
-        let shareButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: self, action: #selector(shareButtonTapped))
-        navigationItem.rightBarButtonItem = shareButton
         
         // Ensure navigation bar is visible
         navigationController?.setNavigationBarHidden(false, animated: false)
@@ -121,11 +118,17 @@ class TimelineViewController: UIViewController {
             controlsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             controlsStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -(bottomPadding + tabBarHeight)),
             
-            matchPicker.heightAnchor.constraint(equalToConstant: 120),
+            matchPicker.heightAnchor.constraint(equalToConstant: 80),
             teamFilterSegment.heightAnchor.constraint(equalToConstant: 40),
-            searchBar.heightAnchor.constraint(equalToConstant: 44),
-            headerView.heightAnchor.constraint(equalToConstant: 44)
+            searchBar.heightAnchor.constraint(equalToConstant: 44)
         ])
+        
+        // Update header view frame when view appears
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.headerView.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 44)
+            self.tableView.tableHeaderView = self.headerView
+        }
     }
     
     // MARK: - Data Methods
@@ -188,51 +191,6 @@ class TimelineViewController: UIViewController {
             break
         }
         updateActions()
-    }
-    
-    // MARK: - Share Methods
-    @objc private func shareButtonTapped() {
-        guard let match = selectedMatch else {
-            // Show alert if no match is selected
-            let alert = UIAlertController(
-                title: "No Match Selected",
-                message: "Please select a match to share.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        
-        // Create detailed share text
-        var shareText = """
-        Match Timeline: \(match.home.name) vs \(match.away.name)
-        Date: \(match.date ?? "N/A")
-        Score: \(match.homeScore) - \(match.awayScore)
-        
-        Home Team (\(match.home.name)) Records:
-        """
-        
-        // Add home team records
-        for action in match.home.actions.sorted(by: { $0.time < $1.time }) {
-            shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
-        }
-        
-        shareText += "\n\nAway Team (\(match.away.name)) Records:"
-        
-        // Add away team records
-        for action in match.away.actions.sorted(by: { $0.time < $1.time }) {
-            shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
-        }
-        
-        // Create activity view controller
-        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
-        
-        // Present the share sheet
-        if let popoverController = activityVC.popoverPresentationController {
-            popoverController.barButtonItem = navigationItem.rightBarButtonItem
-        }
-        present(activityVC, animated: true)
     }
 }
 

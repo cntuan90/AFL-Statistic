@@ -26,6 +26,10 @@ class HistoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBarController()
+        
+        // Add share button
+        let shareButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: self, action: #selector(shareButtonTapped))
+        navigationItem.rightBarButtonItem = shareButton
     }
     
     // MARK: - Setup Methods
@@ -50,31 +54,6 @@ class HistoryViewController: UIViewController {
         let timelineNav = UINavigationController(rootViewController: timelineVC)
         let summaryNav = UINavigationController(rootViewController: summaryVC)
         
-        // Hide navigation bar for HistoryTabViewController
-//        historyNav.setNavigationBarHidden(true, animated: false)
-        
-        // Configure navigation bars for other view controllers
-        [timelineVC, summaryVC].forEach { vc in
-            vc.navigationItem.title = ""
-            vc.navigationItem.largeTitleDisplayMode = .never
-//            vc.navigationItem.hidesBackButton = true
-        }
-        
-        // Add home button to HistoryTabViewController's view
-//        let homeButton = UIButton(type: .system)
-//        homeButton.setImage(UIImage(systemName: "house.fill"), for: .normal)
-//        homeButton.addTarget(self, action: #selector(homeButtonTapped), for: .touchUpInside)
-//        homeButton.translatesAutoresizingMaskIntoConstraints = false
-//        historyTabVC.view.addSubview(homeButton)
-        
-        // Set constraints for home button
-//        NSLayoutConstraint.activate([
-//            homeButton.topAnchor.constraint(equalTo: historyTabVC.view.safeAreaLayoutGuide.topAnchor, constant: 16),
-//            homeButton.leadingAnchor.constraint(equalTo: historyTabVC.view.leadingAnchor, constant: 16),
-//            homeButton.widthAnchor.constraint(equalToConstant: 44),
-//            homeButton.heightAnchor.constraint(equalToConstant: 44)
-//        ])
-        
         // Configure tab bar items
         historyNav.tabBarItem = UITabBarItem(title: "History", image: UIImage(systemName: "clock"), tag: 0)
         timelineNav.tabBarItem = UITabBarItem(title: "Timeline", image: UIImage(systemName: "list.bullet"), tag: 1)
@@ -84,8 +63,83 @@ class HistoryViewController: UIViewController {
         customTabBarController.viewControllers = [historyNav, timelineNav, summaryNav]
     }
     
-//    @objc private func homeButtonTapped() {
-//        // Dismiss the entire navigation stack to return to HomeViewController
-//        view.window?.rootViewController?.dismiss(animated: true)
-//    }
+    // MARK: - Share Methods
+    @objc private func shareButtonTapped() {
+        // Get the current tab's view controller
+        guard let currentNav = customTabBarController.selectedViewController as? UINavigationController,
+              let currentVC = currentNav.topViewController else { return }
+        
+        var shareText = "Match History Summary\n\n"
+        
+        if let historyVC = currentVC as? HistoryTabViewController {
+            // Share all completed matches
+            for match in historyVC.completedMatches {
+                shareText += """
+                Match: \(match.home.name) vs \(match.away.name)
+                Date: \(match.date ?? "N/A")
+                Score: \(match.homeScore) - \(match.awayScore)
+                
+                """
+            }
+        } else if let timelineVC = currentVC as? TimelineViewController {
+            // Share all matches with timeline details
+            for match in timelineVC.matches {
+                shareText += """
+                Match Timeline: \(match.home.name) vs \(match.away.name)
+                Date: \(match.date ?? "N/A")
+                Score: \(match.homeScore) - \(match.awayScore)
+                
+                Home Team (\(match.home.name)) Records:
+                """
+                
+                // Add home team records
+                for action in match.home.actions.sorted(by: { $0.time < $1.time }) {
+                    shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+                }
+                
+                shareText += "\n\nAway Team (\(match.away.name)) Records:"
+                
+                // Add away team records
+                for action in match.away.actions.sorted(by: { $0.time < $1.time }) {
+                    shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+                }
+                
+                shareText += "\n\n"
+            }
+        } else if let summaryVC = currentVC as? SummaryViewController {
+            // Share all matches with summary details
+            for match in summaryVC.matches {
+                shareText += """
+                Match Summary: \(match.home.name) vs \(match.away.name)
+                Date: \(match.date ?? "N/A")
+                Score: \(match.homeScore) - \(match.awayScore)
+                
+                Home Team (\(match.home.name)) Records:
+                """
+                
+                // Add home team records
+                for action in match.home.actions.sorted(by: { $0.time < $1.time }) {
+                    shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+                }
+                
+                shareText += "\n\nAway Team (\(match.away.name)) Records:"
+                
+                // Add away team records
+                for action in match.away.actions.sorted(by: { $0.time < $1.time }) {
+                    shareText += "\n\(action.time) - \(action.playerName): \(action.action)"
+                }
+                
+                shareText += "\n\n"
+            }
+        }
+        
+        // Create activity view controller
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        
+        // Present the share sheet
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        present(activityVC, animated: true)
+    }
 } 
