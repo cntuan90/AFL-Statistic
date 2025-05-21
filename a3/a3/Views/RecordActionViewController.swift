@@ -4,6 +4,7 @@ import FirebaseFirestore
 class RecordActionViewController: UIViewController {
     // MARK: - Properties
     var match: Match?
+    @IBOutlet weak var injuryBtn: UIButton!
     private var selectedHomePlayerIndex: Int?
     private var selectedAwayPlayerIndex: Int?
     private var selectedTeam: String?
@@ -205,6 +206,13 @@ class RecordActionViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        
+        // Configure injury button
+        injuryBtn.addTarget(self, action: #selector(injuryButtonTapped), for: .touchUpInside)
+        
+        // Add injury button to navigation bar
+        let injuryBarButton = UIBarButtonItem(customView: injuryBtn)
+        navigationItem.leftBarButtonItems = [navigationItem.leftBarButtonItem!, injuryBarButton]
         
         // Add subviews
         view.addSubview(quarterLabel)
@@ -570,6 +578,60 @@ class RecordActionViewController: UIViewController {
             recordAction("behind")
         } else {
             showToast(message: "Behind can only be recorded after a Kick or a Handball with a same player in a same team!", type: .warning)
+        }
+    }
+    
+    @objc private func injuryButtonTapped() {
+        guard var match = match else { return }
+        
+        guard let selectedPlayer = getSelectedPlayer() else {
+            showToast(message: "Please select a player to update injury status!", type: .warning)
+            return
+        }
+        
+        // Create new home and away teams with updated player injury status
+        var updatedHomeTeam = match.home
+        var updatedAwayTeam = match.away
+        
+        if selectedTeam == "HOME", let index = selectedHomePlayerIndex {
+            updatedHomeTeam.players[index].injuryStatus = !updatedHomeTeam.players[index].injuryStatus
+        } else if selectedTeam == "AWAY", let index = selectedAwayPlayerIndex {
+            updatedAwayTeam.players[index].injuryStatus = !updatedAwayTeam.players[index].injuryStatus
+        }
+        
+        // Create a new match instance with updated teams
+        var updatedMatch = match
+        updatedMatch.home = updatedHomeTeam
+        updatedMatch.away = updatedAwayTeam
+        
+        // Update the match property
+        self.match = updatedMatch
+        
+        // Update Firestore
+        if let matchId = match.id {
+            let matchData: [String: Any] = [
+                "home.players": updatedHomeTeam.players.map { [
+                    "playerName": $0.playerName,
+                    "positionNumber": $0.positionNumber,
+                    "injuryStatus": $0.injuryStatus
+                ] },
+                "away.players": updatedAwayTeam.players.map { [
+                    "playerName": $0.playerName,
+                    "positionNumber": $0.positionNumber,
+                    "injuryStatus": $0.injuryStatus
+                ] }
+            ]
+            
+            db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in
+                if let error = error {
+                    self?.showToast(message: "Error updating player injury status: \(error.localizedDescription)", type: .error)
+                } else {
+                    let status = selectedPlayer.injuryStatus ? "injured" : "not injured"
+                    self?.showToast(message: "Updated \(selectedPlayer.playerName)'s injury status to \(status)", type: .success)
+                    self?.homeTeamTableView.reloadData()
+                    self?.awayTeamTableView.reloadData()
+                }
+            }
         }
     }
     
