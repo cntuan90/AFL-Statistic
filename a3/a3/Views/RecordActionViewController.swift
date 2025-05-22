@@ -189,16 +189,111 @@ class RecordActionViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadMatchData()
-        if matchStarted {
-            startTimer()
+        
+        // Fetch fresh data from Firestore
+        if let matchId = match?.id {
+            db.collection("matches").document(matchId).getDocument { [weak self] (document, error) in
+                if let error = error {
+                    print("Error fetching match data: \(error)")
+                    return
+                }
+                
+                guard let document = document,
+                      let data = document.data(),
+                      let homeData = data["home"] as? [String: Any],
+                      let awayData = data["away"] as? [String: Any],
+                      let homePlayersData = homeData["players"] as? [[String: Any]],
+                      let awayPlayersData = awayData["players"] as? [[String: Any]],
+                      let currentQuarter = data["currentQuarter"] as? Int,
+                      let startTime = data["startTime"] as? TimeInterval,
+                      let matchStarted = data["matchStarted"] as? Bool else {
+                    print("Failed to parse match data from Firestore")
+                    return
+                }
+                
+                // Convert Firestore data to Player objects
+                let homePlayers = homePlayersData.compactMap { playerData -> Player? in
+                    guard let playerName = playerData["playerName"] as? String,
+                          let positionNumber = playerData["positionNumber"] as? Int else {
+                        return nil
+                    }
+                    return Player(
+                        playerName: playerName,
+                        positionNumber: positionNumber,
+                        image: playerData["image"] as? String ?? "",
+                        injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                    )
+                }
+                
+                let awayPlayers = awayPlayersData.compactMap { playerData -> Player? in
+                    guard let playerName = playerData["playerName"] as? String,
+                          let positionNumber = playerData["positionNumber"] as? Int else {
+                        return nil
+                    }
+                    return Player(
+                        playerName: playerName,
+                        positionNumber: positionNumber,
+                        image: playerData["image"] as? String ?? "",
+                        injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                    )
+                }
+                
+                // Update match data
+                var updatedMatch = self?.match
+                updatedMatch?.home.players = homePlayers
+                updatedMatch?.away.players = awayPlayers
+                updatedMatch?.currentQuarter = currentQuarter
+                updatedMatch?.startTime = startTime
+                updatedMatch?.matchStarted = matchStarted
+                
+                // Update the match property
+                self?.match = updatedMatch
+                
+                // Update UI on main thread
+                DispatchQueue.main.async {
+                    self?.currentQuarter = currentQuarter
+                    self?.startTime = startTime
+                    self?.matchStarted = matchStarted
+                    
+                    // Set team names
+                    self?.homeTeamNameLabel.text = updatedMatch?.home.name
+                    self?.awayTeamNameLabel.text = updatedMatch?.away.name
+                    
+                    // Update quarter and time labels
+                    if currentQuarter <= 3 {
+                        self?.quarterLabel.text = "Q\(currentQuarter)"
+                    } else {
+                        self?.quarterLabel.text = "Final"
+                    }
+                    
+                    if matchStarted {
+                        self?.startEndQuarterButton.setTitle("END QUARTER", for: .normal)
+                        self?.startTimer()
+                    } else {
+                        self?.startEndQuarterButton.setTitle("START QUARTER", for: .normal)
+                        self?.timeLabel.text = "00:00:00"
+                    }
+                    
+                    self?.calculateScore()
+                    
+                    // Ensure table views are properly configured
+                    self?.homeTeamTableView.delegate = self
+                    self?.homeTeamTableView.dataSource = self
+                    self?.awayTeamTableView.delegate = self
+                    self?.awayTeamTableView.dataSource = self
+                    
+                    // Reload table views
+                    self?.homeTeamTableView.reloadData()
+                    self?.awayTeamTableView.reloadData()
+                }
+            }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        timer?.invalidate()
-//        timer = nil
+        timer?.invalidate()
+        timer = nil
     }
     
     // MARK: - Setup Methods
@@ -249,14 +344,14 @@ class RecordActionViewController: UIViewController {
         // Quarter label
         quarterLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            quarterLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            quarterLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             quarterLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
         // Time label
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: quarterLabel.bottomAnchor, constant: 8),
+            timeLabel.topAnchor.constraint(equalTo: quarterLabel.bottomAnchor, constant: 15),
             timeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
@@ -361,42 +456,112 @@ class RecordActionViewController: UIViewController {
     // MARK: - Data Methods
     private func loadMatchData() {
         guard let match = match else { return }
-        matchStarted = match.matchStarted
-        currentQuarter = match.currentQuarter
-        startTime = match.startTime
-        lastAction = match.lastAction
         
-        // Set team names
-        homeTeamNameLabel.text = match.home.name
-        awayTeamNameLabel.text = match.away.name
+        // Debug print
+        print("Loading match data in RecordActionViewController:")
+        print("Match ID: \(match.id ?? "nil")")
+        print("Home team name: \(match.home.name)")
+        print("Home team players count: \(match.home.players.count)")
+        print("Away team name: \(match.away.name)")
+        print("Away team players count: \(match.away.players.count)")
         
-        // Update quarter and time labels
-        if currentQuarter <= 3 {
-            quarterLabel.text = "Q\(currentQuarter)"
-        } else {
-            quarterLabel.text = "Final"
-        }
-        
-        if matchStarted {
-            startEndQuarterButton.setTitle("END QUARTER", for: .normal)
-            startTimer()
-        } else {
-            startEndQuarterButton.setTitle("START QUARTER", for: .normal)
-            timeLabel.text = "00:00:00"
-        }
-        
-        calculateScore()
-        
-        // Ensure table views are properly configured
-        homeTeamTableView.delegate = self
-        homeTeamTableView.dataSource = self
-        awayTeamTableView.delegate = self
-        awayTeamTableView.dataSource = self
-        
-        // Reload table views
-        DispatchQueue.main.async { [weak self] in
-            self?.homeTeamTableView.reloadData()
-            self?.awayTeamTableView.reloadData()
+        // Fetch fresh data from Firestore
+        if let matchId = match.id {
+            db.collection("matches").document(matchId).getDocument { [weak self] (document, error) in
+                if let error = error {
+                    print("Error fetching match data: \(error)")
+                    return
+                }
+                
+                guard let document = document,
+                      let data = document.data(),
+                      let homeData = data["home"] as? [String: Any],
+                      let awayData = data["away"] as? [String: Any],
+                      let homePlayersData = homeData["players"] as? [[String: Any]],
+                      let awayPlayersData = awayData["players"] as? [[String: Any]] else {
+                    print("Failed to parse match data from Firestore")
+                    return
+                }
+                
+                // Convert Firestore data to Player objects
+                let homePlayers = homePlayersData.compactMap { playerData -> Player? in
+                    guard let playerName = playerData["playerName"] as? String,
+                          let positionNumber = playerData["positionNumber"] as? Int else {
+                        return nil
+                    }
+                    return Player(
+                        playerName: playerName,
+                        positionNumber: positionNumber,
+                        image: playerData["image"] as? String ?? "",
+                        injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                    )
+                }
+                
+                let awayPlayers = awayPlayersData.compactMap { playerData -> Player? in
+                    guard let playerName = playerData["playerName"] as? String,
+                          let positionNumber = playerData["positionNumber"] as? Int else {
+                        return nil
+                    }
+                    return Player(
+                        playerName: playerName,
+                        positionNumber: positionNumber,
+                        image: playerData["image"] as? String ?? "",
+                        injuryStatus: playerData["injuryStatus"] as? Bool ?? false
+                    )
+                }
+                
+                // Update match data
+                var updatedMatch = match
+                updatedMatch.home.players = homePlayers
+                updatedMatch.away.players = awayPlayers
+                
+                // Update the match property
+                self?.match = updatedMatch
+                
+                // Debug print after update
+                print("Updated match data:")
+                print("Home team players count: \(updatedMatch.home.players.count)")
+                print("Away team players count: \(updatedMatch.away.players.count)")
+                
+                // Update UI on main thread
+                DispatchQueue.main.async {
+                    self?.matchStarted = match.matchStarted
+                    self?.currentQuarter = match.currentQuarter
+                    self?.startTime = match.startTime
+                    self?.lastAction = match.lastAction
+                    
+                    // Set team names
+                    self?.homeTeamNameLabel.text = match.home.name
+                    self?.awayTeamNameLabel.text = match.away.name
+                    
+                    // Update quarter and time labels
+                    if self?.currentQuarter ?? 1 <= 3 {
+                        self?.quarterLabel.text = "Q\(self?.currentQuarter ?? 1)"
+                    } else {
+                        self?.quarterLabel.text = "Final"
+                    }
+                    
+                    if match.matchStarted {
+                        self?.startEndQuarterButton.setTitle("END QUARTER", for: .normal)
+                        self?.startTimer()
+                    } else {
+                        self?.startEndQuarterButton.setTitle("START QUARTER", for: .normal)
+                        self?.timeLabel.text = "00:00:00"
+                    }
+                    
+                    self?.calculateScore()
+                    
+                    // Ensure table views are properly configured
+                    self?.homeTeamTableView.delegate = self
+                    self?.homeTeamTableView.dataSource = self
+                    self?.awayTeamTableView.delegate = self
+                    self?.awayTeamTableView.dataSource = self
+                    
+                    // Reload table views
+                    self?.homeTeamTableView.reloadData()
+                    self?.awayTeamTableView.reloadData()
+                }
+            }
         }
     }
     
@@ -405,7 +570,6 @@ class RecordActionViewController: UIViewController {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateTime()
         }
-        
         RunLoop.current.add(timer!, forMode: .common)
     }
     
@@ -649,7 +813,20 @@ class RecordActionViewController: UIViewController {
         startEndQuarterButton.setTitle("END QUARTER", for: .normal)
         startTimer()
         
-        updateMatchData()
+        // Update match data in Firestore
+        if let matchId = match.id {
+            let matchData: [String: Any] = [
+                "matchStarted": true,
+                "startTime": startTime,
+                "currentQuarter": currentQuarter
+            ]
+            
+            db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in
+                if let error = error {
+                    self?.showToast(message: "Error updating match data: \(error.localizedDescription)", type: .error)
+                }
+            }
+        }
     }
     
     private func endQuarter() {
@@ -662,7 +839,6 @@ class RecordActionViewController: UIViewController {
         
         currentQuarter += 1
         startTime = Date().timeIntervalSince1970
-        startTimer()
         matchStarted = false
         timer?.invalidate()
         timer = nil
@@ -675,8 +851,21 @@ class RecordActionViewController: UIViewController {
         } else {
             quarterLabel.text = "Q\(currentQuarter)"
         }
-  
-        updateMatchData()
+        
+        // Update match data in Firestore
+        if let matchId = match.id {
+            let matchData: [String: Any] = [
+                "matchStarted": false,
+                "startTime": startTime,
+                "currentQuarter": currentQuarter
+            ]
+            
+            db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in
+                if let error = error {
+                    self?.showToast(message: "Error updating match data: \(error.localizedDescription)", type: .error)
+                }
+            }
+        }
     }
     
     private func endMatch() {
