@@ -818,7 +818,8 @@ class RecordActionViewController: UIViewController {
             let matchData: [String: Any] = [
                 "matchStarted": true,
                 "startTime": startTime,
-                "currentQuarter": currentQuarter
+                "currentQuarter": currentQuarter,
+                "status": "In Progress"
             ]
             
             db.collection("matches").document(matchId).updateData(matchData) { [weak self] error in

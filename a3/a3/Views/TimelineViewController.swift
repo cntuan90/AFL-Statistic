@@ -133,7 +133,7 @@ class TimelineViewController: UIViewController {
     
     // MARK: - Data Methods
     private func loadMatches() {
-        db.collection("matches").getDocuments { [weak self] (snapshot, error) in
+        db.collection("matches").whereField("status", isEqualTo: "Ended").getDocuments { [weak self] (snapshot, error) in
             if let error = error {
                 print("Error loading matches: \(error)")
                 return
