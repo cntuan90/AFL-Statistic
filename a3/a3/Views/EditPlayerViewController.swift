@@ -57,7 +57,7 @@ class EditPlayerViewController: UIViewController {
     
     private func loadData() {
         if isEditMode, let player = player {
-            titleLabel.text = "EDIT PLAYER"
+//            titleLabel.text = "EDIT PLAYER"
             title = "Edit Player"
             playerNameTextField.text = player.playerName
             positionNumberTextField.text = String(player.positionNumber)
@@ -85,7 +85,7 @@ class EditPlayerViewController: UIViewController {
                 }
             }
         } else {
-            titleLabel.text = "ADD PLAYER"
+//            titleLabel.text = "ADD PLAYER"
             title = "Add Player"
             teamSegmentedControl.isEnabled = true
             teamSegmentedControl.selectedSegmentIndex = 0

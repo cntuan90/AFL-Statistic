@@ -73,6 +73,7 @@ class HomeViewController: UIViewController {
     @objc private func historyButtonTapped() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let historyVC = storyboard.instantiateViewController(withIdentifier: "HistoryViewController") as? HistoryViewController {
+            historyVC.title = "History"
             navigationController?.pushViewController(historyVC, animated: true)
         }
     }
@@ -86,16 +87,23 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MatchCell", for: indexPath)
         let match = matches[indexPath.row]
-        
+
         var content = cell.defaultContentConfiguration()
         content.text = "\(match.home.name) vs \(match.away.name)"
-        content.secondaryText = "\(match.status) - \(match.date)"
-        
+
+        // Create attributed string with conditional color
+        let secondaryText = "\(match.status) - \(match.date)"
+        let secondaryTextColor: UIColor = (match.status == "In Progress") ? .systemGreen : .secondaryLabel
+
+        let attributes: [NSAttributedString.Key: Any] = [.foregroundColor: secondaryTextColor]
+        content.secondaryAttributedText = NSAttributedString(string: secondaryText, attributes: attributes)
+
         cell.contentConfiguration = content
         cell.accessoryType = .disclosureIndicator
-        
+
         return cell
     }
+
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)

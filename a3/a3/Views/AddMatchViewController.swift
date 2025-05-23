@@ -6,8 +6,8 @@ class AddMatchViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "ADD NEW MATCH"
-        label.font = .systemFont(ofSize: 30)
+        label.text = "Add New Match"
+        label.font = .systemFont(ofSize: 25)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -16,7 +16,7 @@ class AddMatchViewController: UIViewController {
     private let homeTeamLabel: UILabel = {
         let label = UILabel()
         label.text = "Home Team"
-        label.font = .systemFont(ofSize: 28)
+        label.font = .systemFont(ofSize: 23)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -24,7 +24,7 @@ class AddMatchViewController: UIViewController {
     private let awayTeamLabel: UILabel = {
         let label = UILabel()
         label.text = "Away Team"
-        label.font = .systemFont(ofSize: 28)
+        label.font = .systemFont(ofSize: 23)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -48,7 +48,7 @@ class AddMatchViewController: UIViewController {
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Save", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 28)
+        button.titleLabel?.font = .systemFont(ofSize: 23)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
