@@ -1,0 +1,37 @@
+# --- Xcode ---
+# User settings
+xcuserdata/
+# Build artifacts
+build/
+DerivedData/
+# Unit Test reports
+*.hmap
+*.ipa
+*.xcuserstate
+
+# --- Swift Package Manager ---
+.build/
+.swiftpm/
+# This file tracks specific versions; keep it if you want deterministic builds
+# Package.resolved
+
+# --- CocoaPods ---
+# It is generally recommended to keep the Pods directory out of source control
+Pods/
+# If you don't include Pods, you must include the Podfile.lock
+# Podfile.lock
+
+# --- Carthage ---
+Carthage/Build/
+
+# --- Fastlane ---
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# --- Miscellaneous ---
+.DS_Store
+*.swp
+*.lock
+.env
